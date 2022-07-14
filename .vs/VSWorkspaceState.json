@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\bin",
+    "\\build",
+    "\\debug",
+    "\\includes",
+    "\\includes\\raylib",
+    "\\lib",
+    "\\source"
+  ],
+  "SelectedNode": "\\includes\\raylib\\rlgl.h",
+  "PreviewInSolutionExplorer": false
+}
