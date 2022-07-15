@@ -6,7 +6,7 @@ LIBPATH = lib\\
 BUILD = build\\
 BIN = bin\\
 DEBUG = debug\\
-EXECUTABLE = $(BIN)openblock.exe
+EXECUTABLE = $(BIN)GMTK.exe
 SOURCE = source\\
 
 ## Compile command variables.
