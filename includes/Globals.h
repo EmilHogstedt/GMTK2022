@@ -9,3 +9,5 @@ extern const int screenHeight;
 extern float dt;
 extern double totalTime;
 extern unsigned fps;
+
+extern unsigned shots;

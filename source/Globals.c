@@ -5,3 +5,5 @@ const int screenHeight = 900;
 float dt = 0.0f;
 double totalTime = 0.0;
 unsigned fps = 0;
+
+unsigned shots = 0;

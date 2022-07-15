@@ -3,10 +3,12 @@
 #include "Globals.h"
 #include "Game.h"
 #include "DiceSystem.h"
+#include "Player.h"
 #include "raylib/raygui.h"
 
-//Variables
-Camera camera = { 0 };
+#include <stdio.h>
+
+Player player = { 0 };
 DiceSystem sixDice = { 0 };
 unsigned gamestate = menu;
 bool run = true;
@@ -32,16 +34,13 @@ void Setup(void)
     InitWindow(screenWidth, screenHeight, "GMTK2022");
     SetWindowState(FLAG_VSYNC_HINT);
 
-    camera.position = (Vector3){ 4.0f, 2.0f, 4.0f };
-    camera.target = (Vector3){ 0.0f, 1.8f, 0.0f };
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-    camera.fovy = 90.0f;
-    camera.projection = CAMERA_PERSPECTIVE;
+    SetupPlayer(&player);
+    
 
-    SetCameraMode(camera, CAMERA_FIRST_PERSON);
+    SetCameraMode(player.camera, CAMERA_FIRST_PERSON);
 
     sixDice.timer = 0.0f;
-    sixDice.rollTime = 0.0f;
+    sixDice.rollTime = 10.0f;
     sixDice.lastRoll = 0;
     sixDice.sides = 6;
 }
@@ -95,8 +94,7 @@ void Draw(void)
 
 void UpdateGame(void)
 {
-    DisableCursor();
-    UpdateCamera(&camera);
+    UpdatePlayer(&player);
     if(IsKeyPressed(KEY_ESCAPE))
         gamestate = menu;
     if (UpdateDiceSystem(&sixDice))
@@ -125,7 +123,10 @@ void UpdateMenu(void)
 
     
     if (GuiButton(play, GuiIconText(RICON_DEMON, "Play")))
+    {
         gamestate = game;
+        DisableCursor();
+    }
     if (GuiButton(exit, GuiIconText(RICON_UNDO, "Exit")))
         run = false;
 }
@@ -137,7 +138,9 @@ void DrawGame(void)
 
     ClearBackground(RAYWHITE);
 
-    BeginMode3D(camera);
+    BeginMode3D(player.camera);
+
+    DrawPlayer(&player);
 
     DrawPlane((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector2) { 32.0f, 32.0f }, LIGHTGRAY); // Draw ground
     DrawCube((Vector3) { -16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, BLUE);     // Draw a blue wall
@@ -149,6 +152,14 @@ void DrawGame(void)
     DrawRectangle(10, 10, 220, 70, Fade(SKYBLUE, 0.5f));
     DrawRectangleLines(10, 10, 220, 70, BLUE);
 
+
+    char str[2];
+    sprintf(str, "%d", sixDice.lastRoll);
+    DrawText(str, 10, 50, 30, BLACK);
+
+    char str2[2];
+    sprintf(str2, "%d", shots);
+    DrawText(str2, 200, 200, 50, BLACK);
     DrawText("First person camera default controls:", 20, 20, 10, BLACK);
     DrawText("- Move with keys: W, A, S, D", 40, 40, 10, DARKGRAY);
     DrawText("- Mouse move to look around", 40, 60, 10, DARKGRAY);
