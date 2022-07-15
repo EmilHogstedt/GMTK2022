@@ -1,37 +1,20 @@
-/*******************************************************************************************
-*
-*   raylib [core] example - 3d camera first person
-*
-*   This example has been created using raylib 1.3 (www.raylib.com)
-*   raylib is licensed under an unmodified zlib/libpng license (View raylib.h for details)
-*
-*   Copyright (c) 2015 Ramon Santamaria (@raysan5)
-*
-********************************************************************************************/
-
 #include "raylib/raylib.h"
 
 #define MAX_COLUMNS 20
 
-//------------------------------------------------------------------------------------
-// Program main entry point
-//------------------------------------------------------------------------------------
 int main(void)
 {
-    // Initialization
-    //--------------------------------------------------------------------------------------
     const int screenWidth = 1600;
     const int screenHeight = 900;
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - 3d camera first person");
+    InitWindow(screenWidth, screenHeight, "GMTK2022");
     SetWindowState(FLAG_VSYNC_HINT);
 
-    // Define the camera to look into our 3d world (position, target, up vector)
     Camera camera = { 0 };
     camera.position = (Vector3){ 4.0f, 2.0f, 4.0f };
     camera.target = (Vector3){ 0.0f, 1.8f, 0.0f };
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-    camera.fovy = 60.0f;
+    camera.fovy = 90.0f;
     camera.projection = CAMERA_PERSPECTIVE;
 
     // Generates some random columns
@@ -42,58 +25,45 @@ int main(void)
     for (int i = 0; i < MAX_COLUMNS; i++)
     {
         heights[i] = (float)GetRandomValue(1, 12);
-        positions[i] = (Vector3){ (float)GetRandomValue(-15, 15), heights[i]/2.0f, (float)GetRandomValue(-15, 15) };
+        positions[i] = (Vector3){ (float)GetRandomValue(-15, 15), heights[i] / 2.0f, (float)GetRandomValue(-15, 15) };
         colors[i] = (Color){ GetRandomValue(20, 255), GetRandomValue(10, 55), 30, 255 };
     }
 
-    SetCameraMode(camera, CAMERA_FIRST_PERSON); // Set a first person camera mode
-    //--------------------------------------------------------------------------------------
+    SetCameraMode(camera, CAMERA_FIRST_PERSON);
 
-    // Main game loop
-    while (!WindowShouldClose())                // Detect window close button or ESC key
+    while (!WindowShouldClose())
     {
-        // Update
-        //----------------------------------------------------------------------------------
-        UpdateCamera(&camera);                  // Update camera
-        //----------------------------------------------------------------------------------
-
-        // Draw
-        //----------------------------------------------------------------------------------
+        UpdateCamera(&camera);
         BeginDrawing();
 
-            ClearBackground(RAYWHITE);
+        ClearBackground(RAYWHITE);
 
-            BeginMode3D(camera);
+        BeginMode3D(camera);
 
-                DrawPlane((Vector3){ 0.0f, 0.0f, 0.0f }, (Vector2){ 32.0f, 32.0f }, LIGHTGRAY); // Draw ground
-                DrawCube((Vector3){ -16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, BLUE);     // Draw a blue wall
-                DrawCube((Vector3){ 16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, LIME);      // Draw a green wall
-                DrawCube((Vector3){ 0.0f, 2.5f, 16.0f }, 32.0f, 5.0f, 1.0f, GOLD);      // Draw a yellow wall
+        DrawPlane((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector2) { 32.0f, 32.0f }, LIGHTGRAY); // Draw ground
+        DrawCube((Vector3) { -16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, BLUE);     // Draw a blue wall
+        DrawCube((Vector3) { 16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, LIME);      // Draw a green wall
+        DrawCube((Vector3) { 0.0f, 2.5f, 16.0f }, 32.0f, 5.0f, 1.0f, GOLD);      // Draw a yellow wall
 
-                // Draw some cubes around
-                for (int i = 0; i < MAX_COLUMNS; i++)
-                {
-                    DrawCube(positions[i], 2.0f, heights[i], 2.0f, colors[i]);
-                    DrawCubeWires(positions[i], 2.0f, heights[i], 2.0f, MAROON);
-                }
+        // Draw some cubes around
+        for (int i = 0; i < MAX_COLUMNS; i++)
+        {
+            DrawCube(positions[i], 2.0f, heights[i], 2.0f, colors[i]);
+            DrawCubeWires(positions[i], 2.0f, heights[i], 2.0f, MAROON);
+        }
 
-            EndMode3D();
+        EndMode3D();
 
-            DrawRectangle( 10, 10, 220, 70, Fade(SKYBLUE, 0.5f));
-            DrawRectangleLines( 10, 10, 220, 70, BLUE);
+        DrawRectangle(10, 10, 220, 70, Fade(SKYBLUE, 0.5f));
+        DrawRectangleLines(10, 10, 220, 70, BLUE);
 
-            DrawText("First person camera default controls:", 20, 20, 10, BLACK);
-            DrawText("- Move with keys: W, A, S, D", 40, 40, 10, DARKGRAY);
-            DrawText("- Mouse move to look around", 40, 60, 10, DARKGRAY);
+        DrawText("First person camera default controls:", 20, 20, 10, BLACK);
+        DrawText("- Move with keys: W, A, S, D", 40, 40, 10, DARKGRAY);
+        DrawText("- Mouse move to look around", 40, 60, 10, DARKGRAY);
 
         EndDrawing();
-        //----------------------------------------------------------------------------------
     }
-
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
+    CloseWindow();
 
     return 0;
 }
