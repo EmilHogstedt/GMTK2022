@@ -2,3 +2,5 @@
 *.obj
 *.ilk
 *.exe
+.vscode
+.VS
