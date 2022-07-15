@@ -1,8 +1,20 @@
 #include "Globals.h"
 #include "Game.h"
+#include "DiceSystem.h"
 
 Camera camera = { 0 };
+DiceSystem sixDice = { 0 };
 
+//Private functions
+
+void UpdateDT(void)
+{
+    dt = GetFrameTime();
+    totalTime = GetTime();
+    fps = GetFPS();
+}
+
+//Definitions
 void Setup(void)
 {
     InitWindow(screenWidth, screenHeight, "GMTK2022");
@@ -15,6 +27,11 @@ void Setup(void)
     camera.projection = CAMERA_PERSPECTIVE;
 
     SetCameraMode(camera, CAMERA_FIRST_PERSON);
+
+    sixDice.timer = 0.0f;
+    sixDice.rollTime = 0.0f;
+    sixDice.lastRoll = 0;
+    sixDice.sides = 6;
 }
 
 void Run(void)
@@ -28,7 +45,14 @@ void Run(void)
 
 void Update(void)
 {
+    UpdateDT();
+
     UpdateCamera(&camera);
+    if (UpdateDiceSystem(&sixDice))
+    {
+        unsigned roll = RollDice(sixDice.sides);
+        sixDice.lastRoll = roll;
+    }
 }
 
 void Draw(void)
