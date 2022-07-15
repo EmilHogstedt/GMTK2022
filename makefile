@@ -10,7 +10,7 @@ EXECUTABLE = $(BIN)GMTK.exe
 SOURCE = source\\
 
 ## Compile command variables.
-INCLUDEPATHS = -I$(INCLUDES) -I$(INCLUDES)glad -I$(INCLUDES)KHR -I$(INCLUDES)sdl -I$(INCLUDES)stb -Icglm\\include
+INCLUDEPATHS = -I$(INCLUDES)
 CFLAGS =-c -permissive- -std:c17 -TC -MP -W4 -nologo $(INCLUDEPATHS) -Fd$(DEBUG) -D"_CRT_SECURE_NO_WARNINGS" -D"HAVE_M_PI"
 LFLAGS =-nologo -LIBPATH:$(LIBPATH) $(LIBS) 
 LIBS = raylibdll.lib
