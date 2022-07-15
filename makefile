@@ -11,7 +11,7 @@ SOURCE = source\\
 
 ## Compile command variables.
 INCLUDEPATHS = -I$(INCLUDES)
-CFLAGS =-c -permissive- -std:c17 -TC -MP -W4 -nologo $(INCLUDEPATHS) -Fd$(DEBUG) -D"_CRT_SECURE_NO_WARNINGS" -D"HAVE_M_PI" -D"GRAPHICS_API_OPENGL_43"
+CFLAGS =-c -permissive- -std:c17 -TC -MP -W4 -nologo $(INCLUDEPATHS) -Fd$(DEBUG) -D"_CRT_SECURE_NO_WARNINGS" -D"HAVE_M_PI" -D"GRAPHICS_API_OPENGL_43" -D"RAYGUI_IMPLEMENTATION"
 LFLAGS =-nologo -LIBPATH:$(LIBPATH) $(LIBS) 
 LIBS = raylibdll.lib
 

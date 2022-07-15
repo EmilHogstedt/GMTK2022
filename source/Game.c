@@ -1,12 +1,24 @@
+#include <iso646.h>
+
 #include "Globals.h"
 #include "Game.h"
 #include "DiceSystem.h"
+#include "raylib/raygui.h"
 
+//Variables
 Camera camera = { 0 };
 DiceSystem sixDice = { 0 };
+unsigned gamestate = menu;
+bool run = true;
+
+
+//Forward declarations
+void UpdateGame(void);
+void DrawGame(void);
+void DrawMenu(void);
+void UpdateMenu(void);
 
 //Private functions
-
 void UpdateDT(void)
 {
     dt = GetFrameTime();
@@ -36,7 +48,7 @@ void Setup(void)
 
 void Run(void)
 {
-    while (!WindowShouldClose())
+    while (run)
     {
         Update();
         Draw();
@@ -47,7 +59,46 @@ void Update(void)
 {
     UpdateDT();
 
+    switch (gamestate)
+    {
+    case menu:
+        UpdateMenu();
+        break;
+    case game:
+        UpdateGame();
+        break;
+    case highscore:
+        return;
+        break;
+    default:
+        break;
+    }
+}
+
+void Draw(void)
+{
+    switch (gamestate)
+    {
+    case menu:
+        DrawMenu();
+        break;
+    case game:
+        DrawGame();
+        break;
+    case highscore:
+        return;
+        break;
+    default:
+        break;
+    }
+}
+
+void UpdateGame(void)
+{
+    DisableCursor();
     UpdateCamera(&camera);
+    if(IsKeyPressed(KEY_ESCAPE))
+        gamestate = menu;
     if (UpdateDiceSystem(&sixDice))
     {
         unsigned roll = RollDice(sixDice.sides);
@@ -55,7 +106,32 @@ void Update(void)
     }
 }
 
-void Draw(void)
+void UpdateMenu(void)
+{
+    EnableCursor();
+    Rectangle play = {
+        .height = 30.f,
+        .width = 90.f,
+        .x = 740.f,
+        .y = 900.f / 2.f
+    };
+
+    Rectangle exit = {
+        .height = 30.f,
+        .width = 90.f,
+        .x = 740.f,
+        .y = 900.f / 1.8f
+    };
+
+    
+    if (GuiButton(play, GuiIconText(RICON_DEMON, "Play")))
+        gamestate = game;
+    if (GuiButton(exit, GuiIconText(RICON_UNDO, "Exit")))
+        run = false;
+}
+
+
+void DrawGame(void)
 {
     BeginDrawing();
 
@@ -77,5 +153,16 @@ void Draw(void)
     DrawText("- Move with keys: W, A, S, D", 40, 40, 10, DARKGRAY);
     DrawText("- Mouse move to look around", 40, 60, 10, DARKGRAY);
 
+    EndDrawing();
+}
+
+void DrawMenu(void)
+{
+    BeginDrawing();
+
+    ClearBackground(RAYWHITE);
+
+
+    DrawText("Diece", 650, 200, 100, RED);
     EndDrawing();
 }
