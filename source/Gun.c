@@ -34,7 +34,7 @@ void UpdateShots(Gun* gun, Vector3 playerPos, Enemy* enemies)
 	for (unsigned i = 0; i < arrlen(gun->shotsInfo); i++)
 	{
 		gun->shotsInfo[i].shotPos = Vector3Add(gun->shotsInfo[i].shotPos, Vector3Scale(gun->shotsInfo[i].shotVel, dt));
-		if (Vector3Length(Vector3Subtract(gun->shotsInfo[i].shotPos, playerPos)) > 200)
+		if (Vector3Length(Vector3Subtract(gun->shotsInfo[i].shotPos, playerPos)) > 100)
 		{
 			arrdel(gun->shotsInfo, i);
 		}
@@ -303,7 +303,15 @@ void Shoot(Gun* gun, Camera playerCamera)
 		{
 			ShotInfo info = { 0 };
 			info.shotPos = gun->pos;
-			playerForward = Vector3Subtract(playerForward, Vector3Scale(up, 0.15f));
+			if (gun->currentGun == Pistol)
+			{
+				playerForward = Vector3Subtract(playerForward, Vector3Scale(up, 0.175f));
+			}
+			else if (gun->currentGun == SMG)
+			{
+				playerForward = Vector3Subtract(playerForward, Vector3Scale(up, 0.275f));
+			}
+			
 			playerForward = Vector3Add(playerForward, Vector3Scale(right, 0.15f));
 			info.shotVel = Vector3Scale(playerForward, gun->power);
 			float gravity = -2.0f;
