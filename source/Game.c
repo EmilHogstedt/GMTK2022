@@ -165,20 +165,13 @@ void DrawGame(void)
 
     EndMode3D();
 
-    DrawRectangle(10, 10, 220, 70, Fade(SKYBLUE, 0.5f));
-    DrawRectangleLines(10, 10, 220, 70, BLUE);
-
-
     char str[2];
     sprintf(str, "%d", sixDice.lastRoll);
-    DrawText(str, 10, 50, 30, BLACK);
+    DrawText(str, 300, 50, 30, BLACK);
 
     char str2[10];
     sprintf(str2, "%d / %d", player.gun.currentAmmo, player.gun.maxAmmo);
     DrawText(str2, 200, 200, 50, BLACK);
-    DrawText("First person camera default controls:", 20, 20, 10, BLACK);
-    DrawText("- Move with keys: W, A, S, D", 40, 40, 10, DARKGRAY);
-    DrawText("- Mouse move to look around", 40, 60, 10, DARKGRAY);
 
     EndDrawing();
 }
