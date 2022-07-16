@@ -13,6 +13,36 @@ typedef enum gamestates
    highscore
 }gamestates;
 
+typedef struct ShotInfo
+{
+	Vector3 shotPos;
+	Vector3 shotVel;
+} ShotInfo;
+
+typedef enum GunType {
+	Pistol = 0,
+	SMG,
+	Shotgun
+} GunType;
+
+typedef struct Gun
+{
+	GunType currentGun;
+	unsigned currentAmmo;
+	unsigned maxAmmo;
+	float shootCD;
+	float shootTimer;
+	Vector3 pos;
+	float power;
+	ShotInfo* shotsInfo;
+} Gun;
+
+typedef struct Player
+{
+	Camera camera;
+	Gun gun;
+} Player;
+
 extern const int screenWidth;
 extern const int screenHeight;
 
@@ -24,3 +54,5 @@ extern unsigned gamestate;
 extern bool run;
 
 extern unsigned shots;
+
+extern Player player;

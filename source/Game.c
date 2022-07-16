@@ -5,6 +5,7 @@
 #include "DiceSystem.h"
 #include "Player.h"
 #include "Menu.h"
+#include "Enemies.h"
 
 #include "raylib/raymath.h"
 
@@ -16,11 +17,13 @@
 #define RLIGHTS_IMPLEMENTATION
 #include "raylib/rlights.h"
 
-Shader shader = { 0 };
 Player player = { 0 };
+Shader shader = { 0 };
 DiceSystem sixDice = { 0 };
 
 Light* lights = NULL;
+
+Enemy* enemies = NULL;
 
 Mesh meshes[MAX_MODELS] = { 0 };
 Model models[MAX_MODELS] = { 0 };
@@ -29,6 +32,8 @@ Model models[MAX_MODELS] = { 0 };
 void UpdateGame(void);
 void DrawGame(void);
 void GenerateLevel(void);
+void SetupPlayerAndGuns(void);
+void SetupEnemyModels(void);
 
 //Private functions
 void UpdateDT(void)
@@ -44,7 +49,7 @@ void Setup(void)
     InitWindow(screenWidth, screenHeight, "GMTK2022");
     SetWindowState(FLAG_VSYNC_HINT);
 
-    SetupPlayer(&player);
+    SetupPlayer();
 
     SetCameraMode(player.camera, CAMERA_FIRST_PERSON);
     sixDice.timer = 0.0f;
@@ -61,24 +66,19 @@ void Setup(void)
     arrpush(lights, temp);
 
     //Set the shader for all our objects.
-    for (unsigned i = 0; i < pistolModel.materialCount; i++)
-    {
-        pistolModel.materials[i].shader = shader;
-    }
-    for (unsigned i = 0; i < smgModel.materialCount; i++)
-    {
-        smgModel.materials[i].shader = shader;
-    }
-    for (unsigned i = 0; i < shotgunModel.materialCount; i++)
-    {
-        shotgunModel.materials[i].shader = shader;
-    }
-    for (unsigned i = 0; i < shotModel.materialCount; i++)
-    {
-        shotModel.materials[i].shader = shader;
-    }
+    //Guns
+    SetupPlayerAndGuns();
+    
+    //Enemies
+    SetupEnemyModels();
+
+    //Level
     GenerateLevel();
 
+
+    //TEMP
+    Enemy temp2 = CreateEnemy(Skull, (Vector3) { 40.0f, 20.0f, 1.0f }, player.camera.position, (Vector3){ 1.0f, 1.0f, 1.0f}, 10);
+    arrpush(enemies, temp2);
 }
 
 void Run(void)
@@ -130,13 +130,18 @@ void Draw(void)
 
 void UpdateGame(void)
 {
-    UpdatePlayer(&player);
+    UpdatePlayer(enemies);
     if(IsKeyPressed(KEY_ESCAPE))
         gamestate = menu;
     if (UpdateDiceSystem(&sixDice))
     {
         unsigned roll = RollDice(sixDice.sides);
         sixDice.lastRoll = roll;
+    }
+
+    for (unsigned i = 0; i < arrlen(enemies); i++)
+    {
+        UpdateEnemy(&enemies[i]);
     }
 }
 
@@ -149,13 +154,18 @@ void DrawGame(void)
 
     BeginMode3D(player.camera);
 
-    DrawPlayer(&player);
+    DrawPlayer();
 
     DrawModel(models[0], (Vector3){0.0f, 0.0f, 0.0f}, 1.f, DARKGRAY);
     //DrawPlane((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector2) { 32.0f, 32.0f }, LIGHTGRAY); // Draw ground
     // DrawCube((Vector3) { -16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, BLUE);     // Draw a blue wall
     // DrawCube((Vector3) { 16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, LIME);      // Draw a green wall
     // DrawCube((Vector3) { 0.0f, 2.5f, 16.0f }, 32.0f, 5.0f, 1.0f, GOLD);      // Draw a yellow wall
+
+    for (unsigned i = 0; i < arrlen(enemies); i++)
+    {
+        DrawEnemy(&enemies[i]);
+    }
 
     EndMode3D();
 
@@ -175,6 +185,35 @@ void DrawGame(void)
     DrawText("- Mouse move to look around", 40, 60, 10, DARKGRAY);
 
     EndDrawing();
+}
+
+void SetupPlayerAndGuns(void)
+{
+    for (unsigned i = 0; i < pistolModel.materialCount; i++)
+    {
+        pistolModel.materials[i].shader = shader;
+    }
+    for (unsigned i = 0; i < smgModel.materialCount; i++)
+    {
+        smgModel.materials[i].shader = shader;
+    }
+    for (unsigned i = 0; i < shotgunModel.materialCount; i++)
+    {
+        shotgunModel.materials[i].shader = shader;
+    }
+    for (unsigned i = 0; i < shotModel.materialCount; i++)
+    {
+        shotModel.materials[i].shader = shader;
+    }
+}
+
+void SetupEnemyModels(void)
+{
+    SetupEnemies();
+    for (unsigned i = 0; i < skullModel.materialCount; i++)
+    {
+        skullModel.materials[i].shader = shader;
+    }
 }
 
 void GenerateLevel(void)

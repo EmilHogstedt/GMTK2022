@@ -1,4 +1,3 @@
-#include "Globals.h"
 #include "Gun.h"
 #include "stdio.h"
 #include "raylib/raymath.h"
@@ -26,7 +25,7 @@ Model shotModel = { 0 };
 
 //Private functions
 
-void UpdateShots(Gun* gun, Vector3 playerPos)
+void UpdateShots(Gun* gun, Vector3 playerPos, Enemy* enemies)
 {
 	for (unsigned i = 0; i < arrlen(gun->shotsInfo); i++)
 	{
@@ -35,7 +34,12 @@ void UpdateShots(Gun* gun, Vector3 playerPos)
 		{
 			arrdel(gun->shotsInfo, i);
 		}
-		
+		/* Check if the bullet hits any enemies, then the enemy takes damage and the bullet disappears.
+		for (unsigned j = 0; j < arrlen(enemies); j++)
+		{
+
+		}
+		*/
 	}
 }
 
@@ -94,7 +98,7 @@ void ChangeGun(Gun* gun, GunType type)
 	gun->shootTimer = 0.0f;
 }
 
-void UpdateGun(Gun* gun, Camera playerCamera)
+void UpdateGun(Gun* gun, Camera playerCamera, Enemy* enemies)
 {
 	Vector3 playerPos = playerCamera.position;
 	Vector3 playerTarget = playerCamera.target;
@@ -187,7 +191,7 @@ void UpdateGun(Gun* gun, Camera playerCamera)
 	}
 	}
 
-	UpdateShots(gun, playerPos);
+	UpdateShots(gun, playerPos, enemies);
 }
 
 void Shoot(Gun* gun, Camera playerCamera)
