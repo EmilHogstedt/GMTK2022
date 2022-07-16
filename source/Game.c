@@ -133,14 +133,18 @@ void UpdateGame(void)
 {
     UpdatePlayer(enemies);
     if(IsKeyPressed(KEY_ESCAPE))
+    {
+        EnableCursor();
         gamestate = menu;
+    }
     if (UpdateDiceSystem(&sixDice))
     {
         unsigned roll = RollDice(sixDice.sides);
         sixDice.lastRoll = roll;
     }
 
-    for (unsigned i = 0; i < arrlen(enemies); i++)
+    unsigned len = arrlen(enemies);
+    for (unsigned i = 0; i < len; i++)
     {
         UpdateEnemy(&enemies[i]);
     }
