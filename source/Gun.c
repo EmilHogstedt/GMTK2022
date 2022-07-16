@@ -18,6 +18,10 @@
 #define SMGPower 8.0f
 #define ShotgunPower 15.0f
 
+#define PistolReload 1.0f
+#define SMGReload 2.0f
+#define ShotgunReload 2.0f
+
 Model pistolModel = { 0 };
 Model smgModel = { 0 };
 Model shotgunModel = { 0 };
@@ -47,13 +51,14 @@ void UpdateShots(Gun* gun, Vector3 playerPos, Enemy* enemies)
 
 void SetupGun(Gun* gun)
 {
-	gun->currentGun = SMG;
+	gun->currentGun = Pistol;
 	gun->maxAmmo = PistolAmmo;
+	gun->shootCD = PistolCooldown;
+	gun->power = PistolPower;
+	gun->reloadCD = PistolReload;
 	gun->currentAmmo = gun->maxAmmo;
-	gun->shootCD = SMGCooldown;
 	gun->shootTimer = 0.0f;
 	gun->pos = (Vector3){ 0.0f, 5.0f, 0.0f };
-	gun->power = PistolPower;
 	gun->shotsInfo = NULL;
 
 	pistolModel = LoadModel("resources/Models/Pistol/gun.obj");
@@ -71,6 +76,7 @@ void ChangeGun(Gun* gun, GunType type)
 		gun->maxAmmo = PistolAmmo;
 		gun->shootCD = PistolCooldown;
 		gun->power = PistolPower;
+		gun->reloadCD = PistolReload;
 		break;
 	}
 	case SMG:
@@ -78,6 +84,7 @@ void ChangeGun(Gun* gun, GunType type)
 		gun->maxAmmo = SMGAmmo;
 		gun->shootCD = SMGCooldown;
 		gun->power = SMGPower;
+		gun->reloadCD = SMGReload;
 		break;
 	}
 	case Shotgun:
@@ -85,6 +92,7 @@ void ChangeGun(Gun* gun, GunType type)
 		gun->maxAmmo = ShotgunAmmo;
 		gun->shootCD = ShotgunCooldown;
 		gun->power = ShotgunPower;
+		gun->reloadCD = ShotgunReload;
 		break;
 	}
 	default:
@@ -96,10 +104,20 @@ void ChangeGun(Gun* gun, GunType type)
 	gun->currentGun = type;
 	gun->currentAmmo = gun->maxAmmo;
 	gun->shootTimer = 0.0f;
+	gun->reloading = true;
+	gun->reloadTimer = gun->reloadCD;
 }
 
 void UpdateGun(Gun* gun, Camera playerCamera, Enemy* enemies)
 {
+	if (gun->reloading)
+	{
+		gun->reloadTimer -= dt;
+		if (gun->reloadTimer < 0.0f)
+		{
+			gun->reloading = false;
+		}
+	}
 	Vector3 playerPos = playerCamera.position;
 	Vector3 playerTarget = playerCamera.target;
 	Vector3 playerUp = playerCamera.up;
@@ -126,6 +144,22 @@ void UpdateGun(Gun* gun, Camera playerCamera, Enemy* enemies)
 		s = MatrixScale(0.01f, 0.01f, 0.01f);
 		pitchYaw = Vector3Angle(playerForward, (Vector3) { pistolModel.transform.m8, pistolModel.transform.m9, pistolModel.transform.m10 });
 		
+		if (gun->reloading)
+		{
+			pitchYaw.y -= Lerp(0.0f, PI * 2.0f, 1.0f - (gun->reloadTimer / gun->reloadCD));
+		}
+		else
+		{
+			float first = 1.0f / 6.0f;
+			if (gun->shootTimer > gun->shootCD * (1.0f - first))
+			{
+				pitchYaw.y -= Lerp(0, PI / 2.0f, 1.0f - ((gun->shootTimer - (gun->shootCD * (1.0f - first))) / (gun->shootCD * first)));
+			}
+			else if (gun->shootTimer > 0.0f)
+			{
+				pitchYaw.y -= Lerp(PI / 2.0f, 0.0f, 1.0f - (gun->shootTimer / (gun->shootCD * (1.0f - first))));
+			}
+		}
 		Matrix rY = MatrixRotateY(-pitchYaw.x + PI / 2.0f);
 		Matrix rX = MatrixRotate(right, pitchYaw.y);
 
@@ -145,6 +179,24 @@ void UpdateGun(Gun* gun, Camera playerCamera, Enemy* enemies)
 	{
 		s = MatrixScale(1.0f, 1.0f, 1.0f);
 		pitchYaw = Vector3Angle(playerForward, (Vector3) { smgModel.transform.m8, smgModel.transform.m9, smgModel.transform.m10 });
+
+		if (gun->reloading)
+		{
+			float first = 1.0f / 4.0f;
+			if (gun->reloadTimer > gun->reloadCD * (1.0f - first))
+			{
+				pitchYaw.x += Lerp(0.0f, PI / 4.0f, 1.0f - ((gun->reloadTimer - (gun->reloadCD * (1.0f - first))) / (gun->reloadCD * first)));
+			}
+			else if (gun->reloadTimer > first)
+			{
+				pitchYaw.x += PI / 4.0f;
+			}
+			else if (gun->reloadTimer > 0.0f)
+			{
+				pitchYaw.x += Lerp(PI / 4.0f, 0.0f, 1.0f - ((gun->reloadTimer) / (gun->reloadCD * first)));
+			}
+		}
+		
 
 		Matrix rY = MatrixRotateY(-pitchYaw.x + PI / 16.0f);
 		Matrix rX = MatrixRotate(right, pitchYaw.y);
@@ -168,7 +220,24 @@ void UpdateGun(Gun* gun, Camera playerCamera, Enemy* enemies)
 		s = MatrixScale(1.0f, 1.0f, 0.2f);
 		pitchYaw = Vector3Angle(playerForward, (Vector3) { shotgunModel.transform.m8, shotgunModel.transform.m9, shotgunModel.transform.m10 });
 
+		if (gun->reloading)
+		{
+			pitchYaw.x += Lerp(0.0f, PI * 2.0f, 1.0f - (gun->reloadTimer / gun->reloadCD));
+		}
+		else
+		{
+			float first = 1.0f / 6.0f;
+			if (gun->shootTimer > gun->shootCD * (1.0f - first))
+			{
+				pitchYaw.y -= Lerp(0, PI / 2.0f, 1.0f - ((gun->shootTimer - (gun->shootCD * (1.0f - first))) / (gun->shootCD * first)));
+			}
+			else if (gun->shootTimer > 0.0f)
+			{
+				pitchYaw.y -= Lerp(PI / 2.0f, 0.0f, 1.0f - (gun->shootTimer / (gun->shootCD * (1.0f - first))));
+			}
+		}
 		Matrix rY = MatrixRotateY(-pitchYaw.x + PI / 16.0f);
+
 		Matrix rX = MatrixRotate(right, pitchYaw.y);
 
 		r = MatrixMultiply(rY, rX);
@@ -196,8 +265,15 @@ void UpdateGun(Gun* gun, Camera playerCamera, Enemy* enemies)
 
 void Shoot(Gun* gun, Camera playerCamera)
 {
-	if (gun->shootTimer <= 0.0f)
+	if (gun->shootTimer <= 0.0f && !gun->reloading)
 	{
+		if (gun->currentAmmo == 0)
+		{
+			gun->reloading = true;
+			gun->reloadTimer = gun->reloadCD;
+			gun->currentAmmo = gun->maxAmmo;
+			return;
+		}
 		Vector3 playerForward = Vector3Normalize(Vector3Subtract(playerCamera.target, playerCamera.position));
 
 		Vector3 normalizedUp = Vector3Normalize(playerCamera.up);
@@ -221,11 +297,7 @@ void Shoot(Gun* gun, Camera playerCamera)
 				float gravity = -2.0f;
 				info.shotVel.y += gravity;
 				arrpush(gun->shotsInfo, info);
-
-				shots += 1;
 			}
-			return;
-			//Shot a rain of shots
 		}
 		else
 		{
@@ -237,11 +309,8 @@ void Shoot(Gun* gun, Camera playerCamera)
 			float gravity = -2.0f;
 			info.shotVel.y += gravity;
 			arrpush(gun->shotsInfo, info);
-
-			shots += 1;
-			return;
-			//Shoot 1 shot.
 		}
+		gun->currentAmmo -= 1;
 	}
 }
 

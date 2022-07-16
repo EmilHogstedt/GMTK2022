@@ -157,10 +157,6 @@ void DrawGame(void)
     DrawPlayer();
 
     DrawModel(models[0], (Vector3){0.0f, 0.0f, 0.0f}, 1.f, DARKGRAY);
-    //DrawPlane((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector2) { 32.0f, 32.0f }, LIGHTGRAY); // Draw ground
-    // DrawCube((Vector3) { -16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, BLUE);     // Draw a blue wall
-    // DrawCube((Vector3) { 16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, LIME);      // Draw a green wall
-    // DrawCube((Vector3) { 0.0f, 2.5f, 16.0f }, 32.0f, 5.0f, 1.0f, GOLD);      // Draw a yellow wall
 
     for (unsigned i = 0; i < arrlen(enemies); i++)
     {
@@ -177,8 +173,8 @@ void DrawGame(void)
     sprintf(str, "%d", sixDice.lastRoll);
     DrawText(str, 10, 50, 30, BLACK);
 
-    char str2[2];
-    sprintf(str2, "%d", shots);
+    char str2[10];
+    sprintf(str2, "%d / %d", player.gun.currentAmmo, player.gun.maxAmmo);
     DrawText(str2, 200, 200, 50, BLACK);
     DrawText("First person camera default controls:", 20, 20, 10, BLACK);
     DrawText("- Move with keys: W, A, S, D", 40, 40, 10, DARKGRAY);

@@ -24,6 +24,18 @@ void UpdatePlayer(Enemy* enemies)
 	{
 		Shoot(&player.gun, player.camera);
 	}
+	if (IsKeyPressed(KEY_ONE) && player.gun.currentGun != Pistol)
+	{
+		ChangeGun(&player.gun, Pistol);
+	}
+	else if (IsKeyPressed(KEY_TWO) && player.gun.currentGun != SMG)
+	{
+		ChangeGun(&player.gun, SMG);
+	}
+	else if (IsKeyPressed(KEY_THREE) && player.gun.currentGun != Shotgun)
+	{
+		ChangeGun(&player.gun, Shotgun);
+	}
 }
 
 void DrawPlayer()

@@ -35,6 +35,9 @@ typedef struct Gun
 	Vector3 pos;
 	float power;
 	ShotInfo* shotsInfo;
+	bool reloading;
+	float reloadCD;
+	float reloadTimer;
 } Gun;
 
 typedef struct Player
@@ -52,7 +55,5 @@ extern unsigned fps;
 
 extern unsigned gamestate;
 extern bool run;
-
-extern unsigned shots;
 
 extern Player player;
