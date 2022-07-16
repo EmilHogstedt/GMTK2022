@@ -6,9 +6,19 @@
 #include "Player.h"
 #include "Menu.h"
 
+#include "raylib/raymath.h"
 
+#define STB_DS_IMPLEMENTATION
+#include "stb_ds.h"
+
+#define RLIGHTS_IMPLEMENTATION
+#include "raylib/rlights.h"
+
+Shader shader = { 0 };
 Player player = { 0 };
 DiceSystem sixDice = { 0 };
+
+Light* lights = NULL;
 
 //Forward declarations
 void UpdateGame(void);
@@ -29,7 +39,6 @@ void Setup(void)
     SetWindowState(FLAG_VSYNC_HINT);
 
     SetupPlayer(&player);
-    
 
     SetCameraMode(player.camera, CAMERA_FIRST_PERSON);
     sixDice.timer = 0.0f;
@@ -37,6 +46,27 @@ void Setup(void)
     sixDice.lastRoll = 0;
     sixDice.sides = 6;
 
+    shader = LoadShader(TextFormat("shaders/base_lighting.vs", GLSL_VERSION), TextFormat("shaders/lighting.fs", GLSL_VERSION));
+    shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
+
+    int ambientLoc = GetShaderLocation(shader, "ambient");
+    SetShaderValue(shader, ambientLoc, (float[4]) { 0.1f, 0.1f, 0.1f, 1.0f }, SHADER_UNIFORM_VEC4);
+    Light temp = CreateLight(LIGHT_POINT, (Vector3) { -2.0f, 1.0f, -2.0f }, Vector3Zero(), WHITE, shader);
+    arrpush(lights, temp);
+
+    //Set the shader for all our objects.
+    for (unsigned i = 0; i < pistolModel.materialCount; i++)
+    {
+        pistolModel.materials[i].shader = shader;
+    }
+    for (unsigned i = 0; i < smgModel.materialCount; i++)
+    {
+        smgModel.materials[i].shader = shader;
+    }
+    for (unsigned i = 0; i < shotgunModel.materialCount; i++)
+    {
+        shotgunModel.materials[i].shader = shader;
+    }
 }
 
 void Run(void)

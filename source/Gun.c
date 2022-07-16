@@ -17,7 +17,7 @@ Model shotgunModel = { 0 };
 
 void SetupGun(Gun* gun)
 {
-	gun->currentGun = Pistol;
+	gun->currentGun = Shotgun;
 	gun->maxAmmo = PistolAmmo;
 	gun->currentAmmo = gun->maxAmmo;
 	gun->shootCD = PistolCooldown;
@@ -27,6 +27,7 @@ void SetupGun(Gun* gun)
 
 	pistolModel = LoadModel("resources/Models/Pistol/gun.obj");
 	smgModel = LoadModel("resources/Models/SMG/Uzi.obj");
+	shotgunModel = LoadModel("resources/Models/Shotgun/Rifle.obj");
 }
 
 void ChangeGun(Gun* gun, GunType type)
@@ -77,18 +78,64 @@ void UpdateGun(Gun* gun, Camera playerCamera)
 		gun->shootTimer -= dt;
 	}
 
-	Matrix s = MatrixScale(0.01f, 0.01f, 0.01f);
-
-	Vector2 pitchYaw = Vector3Angle(playerForward, (Vector3) { pistolModel.transform.m8, pistolModel.transform.m9, pistolModel.transform.m10});
-	Matrix r = MatrixRotateXYZ(
-		(Vector3) { 
+	Matrix s = { 0 };
+	Vector2 pitchYaw = { 0 };
+	Matrix r = { 0 };
+	Matrix t = { 0 };
+	switch (gun->currentGun)
+	{
+	case Pistol:
+	{
+		s = MatrixScale(0.01f, 0.01f, 0.01f);
+		pitchYaw = Vector3Angle(playerForward, (Vector3) { pistolModel.transform.m8, pistolModel.transform.m9, pistolModel.transform.m10 });
+		r = MatrixRotateXYZ(
+			(Vector3) {
 			pitchYaw.y * abs(playerForward.z), -pitchYaw.x + PI / 2.0f, pitchYaw.y * abs(playerForward.x)
 		}
-	);
-	
-	Vector3 tempPos = Vector3Add(playerPos, (Vector3) { playerForward.x - (1.5 * playerForward.z) , -0.5f, playerForward.z + (1.5 * playerForward.x) });
-	Matrix t = MatrixTranslate(tempPos.x, tempPos.y, tempPos.z);
-	pistolModel.transform = MatrixMultiply(MatrixMultiply(s, r), t);
+		);
+		Vector3 tempPos = Vector3Add(playerPos, (Vector3) { playerForward.x - (1.5 * playerForward.z), -0.5f, playerForward.z + (1.5 * playerForward.x) });
+		t = MatrixTranslate(tempPos.x, tempPos.y, tempPos.z);
+
+
+		pistolModel.transform = MatrixMultiply(MatrixMultiply(s, r), t);
+		break;
+	}
+	case SMG:
+	{
+		s = MatrixScale(1.0f, 1.0f, 1.0f);
+		pitchYaw = Vector3Angle(playerForward, (Vector3) { smgModel.transform.m8, smgModel.transform.m9, smgModel.transform.m10 });
+		r = MatrixRotateXYZ(
+			(Vector3) {
+			pitchYaw.y * abs(playerForward.z), -pitchYaw.x, pitchYaw.y * abs(playerForward.x)
+		}
+		);
+		Vector3 tempPos = Vector3Add(playerPos, (Vector3) { playerForward.x - (1.5 * playerForward.z), -2.0f, playerForward.z + (1.5 * playerForward.x) });
+		t = MatrixTranslate(tempPos.x, tempPos.y, tempPos.z);
+
+		smgModel.transform = MatrixMultiply(MatrixMultiply(s, r), t);
+		break;
+	}
+	case Shotgun:
+	{
+		s = MatrixScale(0.5f, 0.5f, 0.2f);
+		pitchYaw = Vector3Angle(playerForward, (Vector3) { shotgunModel.transform.m8, shotgunModel.transform.m9, shotgunModel.transform.m10 });
+		r = MatrixRotateXYZ(
+			(Vector3) {
+			pitchYaw.y* abs(playerForward.z), -pitchYaw.x, pitchYaw.y * abs(playerForward.x)
+		}
+		);
+		Vector3 tempPos = Vector3Add(playerPos, (Vector3) {playerForward.x - (0.5f * playerForward.z), -0.5f, playerForward.z + (0.5f * playerForward.x) });
+		tempPos.x -= 1.2f * playerForward.x;
+		tempPos.z -= 1.2f * playerForward.z;
+		t = MatrixTranslate(tempPos.x, tempPos.y, tempPos.z);
+		shotgunModel.transform = MatrixMultiply(MatrixMultiply(s, r), t);
+		break;
+	}
+	default:
+	{
+		break;
+	}
+	}
 }
 
 void Shoot(Gun* gun)
@@ -117,15 +164,17 @@ void DrawGun(Gun* gun)
 	case Pistol:
 	{
 		//DrawModelEx(pistolModel, gun->pos, (Vector3) { 0.0f, 1.0f, 0.0f }, gun->rot, (Vector3) { 0.01f, 0.01f, 0.01f }, RED);
-		DrawModel(pistolModel, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, RED);
+		DrawModel(pistolModel, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
 		break;
 	}
 	case SMG:
 	{
+		DrawModel(smgModel, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
 		break;
 	}
 	case Shotgun:
 	{
+		DrawModel(shotgunModel, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
 		break;
 	}
 	default:

@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include "raylib/raylib.h"
 
+#define GLSL_VERSION 330
+
 #define MAX_COLUMNS 20
 
 typedef enum gamestates

@@ -21,3 +21,7 @@ void ChangeGun(Gun* gun, GunType type);
 void UpdateGun(Gun* gun, Camera playerCamera);
 void Shoot(Gun* gun);
 void DrawGun(Gun* gun);
+
+Model pistolModel;
+Model smgModel;
+Model shotgunModel;
