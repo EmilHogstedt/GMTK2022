@@ -36,7 +36,7 @@ void DrawMenu(void)
 
     ClearBackground(RAYWHITE);
 
-
+    
     DrawText("Diece", 650, 200, 100, RED);
     EndDrawing();
 }

@@ -5,6 +5,7 @@
 #define GLSL_VERSION 330
 
 #define MAX_COLUMNS 20
+#define MAX_MODELS 20
 
 typedef enum gamestates
 {
@@ -56,4 +57,10 @@ extern unsigned fps;
 extern unsigned gamestate;
 extern bool run;
 
+<<<<<<< Updated upstream
 extern Player player;
+=======
+extern unsigned shots;
+
+extern BoundingBox mapElementsHitBox[MAX_MODELS];
+>>>>>>> Stashed changes
