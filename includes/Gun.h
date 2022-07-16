@@ -12,11 +12,12 @@ typedef struct Gun
 	unsigned maxAmmo;
 	float shootCD;
 	float shootTimer;
-	Matrix matrix;
+	Vector3 pos;
+	float rot;
 } Gun;
 
 void SetupGun(Gun* gun);
 void ChangeGun(Gun* gun, GunType type);
-void UpdateGun(Gun* gun, Vector3 playerPos, Vector3 playerForward);
+void UpdateGun(Gun* gun, Camera playerCamera);
 void Shoot(Gun* gun);
 void DrawGun(Gun* gun);

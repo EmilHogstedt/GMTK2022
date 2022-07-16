@@ -38,7 +38,6 @@ void Setup(void)
     
 
     SetCameraMode(player.camera, CAMERA_FIRST_PERSON);
-
     sixDice.timer = 0.0f;
     sixDice.rollTime = 10.0f;
     sixDice.lastRoll = 0;
