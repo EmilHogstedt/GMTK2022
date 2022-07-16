@@ -1,8 +1,11 @@
 #include "Player.h"
 #include "raylib/raymath.h"
 
+#include "raylib/physac.h"
+
 BoundingBox hitbox = { 0 };
 Vector3 gravity = {0.0f, -9.82f, 0.0f};
+PhysicsBody pphys = { 0 };
 
 void SetupPlayer()
 {
@@ -50,6 +53,7 @@ void UpdatePlayer(Enemy* enemies)
 	//player->camera.target = (Vector3){ temp.m8, temp.m9, temp.m10 };
 
 	//Physics
+
 
 	//Collissions
 	if(CheckCollisionBoxes(hitbox, mapElementsHitBox[0]))

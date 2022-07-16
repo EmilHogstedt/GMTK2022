@@ -16,6 +16,9 @@
 #define RLIGHTS_IMPLEMENTATION
 #include "raylib/rlights.h"
 
+#define PHYSAC_IMPLEMENTATION
+#include "raylib/physac.h"
+
 Player player = { 0 };
 Shader shader = { 0 };
 DiceSystem sixDice = { 0 };
@@ -77,6 +80,8 @@ void Setup(void)
     SetWindowState(FLAG_VSYNC_HINT);
 
     SetupPlayer();
+
+    InitPhysics();
 
     SetCameraMode(player.camera, CAMERA_FIRST_PERSON);
 
