@@ -3,6 +3,8 @@
 #include "raylib/raygui.h"
 #include "Globals.h"
 
+#include "stdio.h"
+
 Rectangle bplay = {
         .height = 30.f,
         .width = 90.f,
@@ -46,6 +48,13 @@ void DrawMenu(void)
     ClearBackground(RAYWHITE);
 
     
-    DrawText("Diece", 650, 200, 100, RED);
+    DrawText("Diece", screenWidth / 2, screenHeight / 8, 100, RED);
+
+    if (HighScore > 0)
+    {
+        char scoreBuf[100];
+        sprintf(scoreBuf, "HighScore: %d", HighScore);
+        DrawText(scoreBuf, screenWidth / 2, screenHeight / 4, 50, BLUE);
+    }
     EndDrawing();
 }

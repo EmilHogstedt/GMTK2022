@@ -1,5 +1,6 @@
 #include "DiceSystem.h"
 #include <stdlib.h>
+#include "time.h"
 //Definitions
 
 bool UpdateDiceSystem(DiceSystem* diceSystem)
@@ -24,5 +25,6 @@ bool UpdateDiceSystem(DiceSystem* diceSystem)
 
 unsigned RollDice(unsigned sides)
 {
+	srand(time(NULL));
 	return (rand() % sides) + 1;
 }

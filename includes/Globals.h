@@ -62,3 +62,6 @@ extern Player player;
 extern unsigned shots;
 
 extern BoundingBox mapElementsHitBox[MAX_MODELS];
+
+extern unsigned CurrentScore;
+extern unsigned HighScore;

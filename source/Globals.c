@@ -11,3 +11,6 @@ unsigned gamestate = menu;
 bool run = true;
 
 unsigned shots = 0;
+
+unsigned CurrentScore = 0;
+unsigned HighScore = 0;

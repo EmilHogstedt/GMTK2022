@@ -13,7 +13,7 @@
 #define ShotgunAmmo 5
 
 #define PistolCooldown 1.0f
-#define SMGCooldown 0.1f
+#define SMGCooldown 0.3f
 #define ShotgunCooldown 3.0f
 
 #define PistolPower 20.0f
@@ -32,6 +32,12 @@ Model shotModel = { 0 };
 Sound pistolShotSounds[6];
 Sound smgShotSounds[6];
 Sound shotgunShotSounds[6];
+
+Sound pistolCasingSounds[6];
+Sound smgCasingSounds[6];
+Sound shotgunCasingSounds[6];
+
+Sound reloadSounds[3];
 //Private functions
 
 void UpdateShots(Gun* gun, Vector3 playerPos, Enemy* enemies)
@@ -65,12 +71,40 @@ void RandomizeShotSound(void)
 	}
 	case SMG:
 	{
-		PlaySound(pistolShotSounds[shotIndex]);
+		PlaySound(smgShotSounds[shotIndex]);
 		break;
 	}
 	case Shotgun:
 	{
 		PlaySound(shotgunShotSounds[shotIndex]);
+		break;
+	}
+	default:
+	{
+		break;
+	}
+	}
+}
+
+void RandomizeCasingSound(void)
+{
+	srand(time(NULL));
+	unsigned casingIndex = rand() % 6;
+	switch (player.gun.currentGun)
+	{
+	case Pistol:
+	{
+		PlaySound(pistolCasingSounds[casingIndex]);
+		break;
+	}
+	case SMG:
+	{
+		PlaySound(smgCasingSounds[casingIndex]);
+		break;
+	}
+	case Shotgun:
+	{
+		PlaySound(shotgunCasingSounds[casingIndex]);
 		break;
 	}
 	default:
@@ -89,7 +123,9 @@ void SetupGun(Gun* gun)
 	gun->shootCD = PistolCooldown;
 	gun->power = PistolPower;
 	gun->reloadCD = PistolReload;
-	gun->currentAmmo = gun->maxAmmo;
+
+	srand(time(NULL));
+	gun->currentAmmo = rand() % gun->maxAmmo + 1;
 	gun->shootTimer = 0.0f;
 	gun->pos = (Vector3){ 0.0f, 5.0f, 0.0f };
 	gun->shotsInfo = NULL;
@@ -100,27 +136,58 @@ void SetupGun(Gun* gun)
 	shotModel = LoadModelFromMesh(GenMeshSphere(0.035f, 10, 10));
 
 	//Setup sounds
-	pistolShotSounds[0] = LoadSound("resources/Sounds/Pistol/shot1.wav");
-	pistolShotSounds[1] = LoadSound("resources/Sounds/Pistol/shot2.wav");
-	pistolShotSounds[2] = LoadSound("resources/Sounds/Pistol/shot3.wav");
-	pistolShotSounds[3] = LoadSound("resources/Sounds/Pistol/shot4.wav");
-	pistolShotSounds[4] = LoadSound("resources/Sounds/Pistol/shot5.wav");
-	pistolShotSounds[5] = LoadSound("resources/Sounds/Pistol/shot6.wav");
+	//Shots
+	{
+		pistolShotSounds[0] = LoadSound("resources/Sounds/Pistol/shot1.wav");
+		pistolShotSounds[1] = LoadSound("resources/Sounds/Pistol/shot2.wav");
+		pistolShotSounds[2] = LoadSound("resources/Sounds/Pistol/shot3.wav");
+		pistolShotSounds[3] = LoadSound("resources/Sounds/Pistol/shot4.wav");
+		pistolShotSounds[4] = LoadSound("resources/Sounds/Pistol/shot5.wav");
+		pistolShotSounds[5] = LoadSound("resources/Sounds/Pistol/shot6.wav");
 
-	smgShotSounds[0] = LoadSound("resources/Sounds/SMG/shot1.wav");
-	smgShotSounds[1] = LoadSound("resources/Sounds/SMG/shot2.wav");
-	smgShotSounds[2] = LoadSound("resources/Sounds/SMG/shot3.wav");
-	smgShotSounds[3] = LoadSound("resources/Sounds/SMG/shot4.wav");
-	smgShotSounds[4] = LoadSound("resources/Sounds/SMG/shot5.wav");
-	smgShotSounds[5] = LoadSound("resources/Sounds/SMG/shot6.wav");
+		smgShotSounds[0] = LoadSound("resources/Sounds/SMG/shot1.wav");
+		smgShotSounds[1] = LoadSound("resources/Sounds/SMG/shot2.wav");
+		smgShotSounds[2] = LoadSound("resources/Sounds/SMG/shot3.wav");
+		smgShotSounds[3] = LoadSound("resources/Sounds/SMG/shot4.wav");
+		smgShotSounds[4] = LoadSound("resources/Sounds/SMG/shot5.wav");
+		smgShotSounds[5] = LoadSound("resources/Sounds/SMG/shot6.wav");
 
+		shotgunShotSounds[0] = LoadSound("resources/Sounds/Shotgun/shot1.wav");
+		shotgunShotSounds[1] = LoadSound("resources/Sounds/Shotgun/shot2.wav");
+		shotgunShotSounds[2] = LoadSound("resources/Sounds/Shotgun/shot3.wav");
+		shotgunShotSounds[3] = LoadSound("resources/Sounds/Shotgun/shot4.wav");
+		shotgunShotSounds[4] = LoadSound("resources/Sounds/Shotgun/shot5.wav");
+		shotgunShotSounds[5] = LoadSound("resources/Sounds/Shotgun/shot6.wav");
+	}
 	
-	shotgunShotSounds[0] = LoadSound("resources/Sounds/Shotgun/shot1.wav");
-	shotgunShotSounds[1] = LoadSound("resources/Sounds/Shotgun/shot2.wav");
-	shotgunShotSounds[2] = LoadSound("resources/Sounds/Shotgun/shot3.wav");
-	shotgunShotSounds[3] = LoadSound("resources/Sounds/Shotgun/shot4.wav");
-	shotgunShotSounds[4] = LoadSound("resources/Sounds/Shotgun/shot5.wav");
-	shotgunShotSounds[5] = LoadSound("resources/Sounds/Shotgun/shot6.wav");
+	//Casings
+	{
+		pistolCasingSounds[0] = LoadSound("resources/Sounds/Pistol/casing1.wav");
+		pistolCasingSounds[1] = LoadSound("resources/Sounds/Pistol/casing2.wav");
+		pistolCasingSounds[2] = LoadSound("resources/Sounds/Pistol/casing3.wav");
+		pistolCasingSounds[3] = LoadSound("resources/Sounds/Pistol/casing4.wav");
+		pistolCasingSounds[4] = LoadSound("resources/Sounds/Pistol/casing5.wav");
+		pistolCasingSounds[5] = LoadSound("resources/Sounds/Pistol/casing6.wav");
+
+		smgCasingSounds[0] = LoadSound("resources/Sounds/SMG/casing1.wav");
+		smgCasingSounds[1] = LoadSound("resources/Sounds/SMG/casing2.wav");
+		smgCasingSounds[2] = LoadSound("resources/Sounds/SMG/casing3.wav");
+		smgCasingSounds[3] = LoadSound("resources/Sounds/SMG/casing4.wav");
+		smgCasingSounds[4] = LoadSound("resources/Sounds/SMG/casing5.wav");
+		smgCasingSounds[5] = LoadSound("resources/Sounds/SMG/casing6.wav");
+
+		shotgunCasingSounds[0] = LoadSound("resources/Sounds/Shotgun/casing1.wav");
+		shotgunCasingSounds[1] = LoadSound("resources/Sounds/Shotgun/casing2.wav");
+		shotgunCasingSounds[2] = LoadSound("resources/Sounds/Shotgun/casing3.wav");
+		shotgunCasingSounds[3] = LoadSound("resources/Sounds/Shotgun/casing4.wav");
+		shotgunCasingSounds[4] = LoadSound("resources/Sounds/Shotgun/casing5.wav");
+		shotgunCasingSounds[5] = LoadSound("resources/Sounds/Shotgun/casing6.wav");
+	}
+	
+	//Reloads
+	reloadSounds[0] = LoadSound("resources/Sounds/Pistol/reload.wav");
+	reloadSounds[1] = LoadSound("resources/Sounds/SMG/reload.wav");
+	reloadSounds[2] = LoadSound("resources/Sounds/Shotgun/reload.wav");
 }
 
 void ChangeGun(Gun* gun, GunType type)
@@ -158,10 +225,13 @@ void ChangeGun(Gun* gun, GunType type)
 	}
 
 	gun->currentGun = type;
-	gun->currentAmmo = gun->maxAmmo;
+	srand(time(NULL));
+	gun->currentAmmo = rand() % gun->maxAmmo + 1;
 	gun->shootTimer = 0.0f;
 	gun->reloading = true;
 	gun->reloadTimer = gun->reloadCD;
+
+	PlaySound(reloadSounds[gun->currentGun]);
 }
 
 void UpdateGun(Gun* gun, Camera playerCamera, Enemy* enemies)
@@ -172,6 +242,7 @@ void UpdateGun(Gun* gun, Camera playerCamera, Enemy* enemies)
 		if (gun->reloadTimer < 0.0f)
 		{
 			gun->reloading = false;
+			RandomizeCasingSound();
 		}
 	}
 	Vector3 playerPos = playerCamera.position;
@@ -327,7 +398,9 @@ void Shoot(Gun* gun, Camera playerCamera)
 		{
 			gun->reloading = true;
 			gun->reloadTimer = gun->reloadCD;
-			gun->currentAmmo = gun->maxAmmo;
+			srand(time(NULL));
+			gun->currentAmmo = rand() % gun->maxAmmo + 1;
+			PlaySound(reloadSounds[gun->currentGun]);
 			return;
 		}
 		Vector3 playerForward = Vector3Normalize(Vector3Subtract(playerCamera.target, playerCamera.position));
@@ -387,17 +460,17 @@ void DrawGun(Gun* gun)
 	case Pistol:
 	{
 		//DrawModelEx(pistolModel, gun->pos, (Vector3) { 0.0f, 1.0f, 0.0f }, gun->rot, (Vector3) { 0.01f, 0.01f, 0.01f }, RED);
-		DrawModel(pistolModel, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
+		DrawModel(pistolModel, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, BLANK);
 		break;
 	}
 	case SMG:
 	{
-		DrawModel(smgModel, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
+		DrawModel(smgModel, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, BLANK);
 		break;
 	}
 	case Shotgun:
 	{
-		DrawModel(shotgunModel, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
+		DrawModel(shotgunModel, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, BLANK);
 		break;
 	}
 	default:
