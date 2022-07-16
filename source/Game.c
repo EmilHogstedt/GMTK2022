@@ -1,24 +1,18 @@
-#include <iso646.h>
+#include <stdio.h>
 
 #include "Globals.h"
 #include "Game.h"
 #include "DiceSystem.h"
 #include "Player.h"
-#include "raylib/raygui.h"
+#include "Menu.h"
 
-#include <stdio.h>
 
 Player player = { 0 };
 DiceSystem sixDice = { 0 };
-unsigned gamestate = menu;
-bool run = true;
-
 
 //Forward declarations
 void UpdateGame(void);
 void DrawGame(void);
-void DrawMenu(void);
-void UpdateMenu(void);
 
 //Private functions
 void UpdateDT(void)
@@ -43,6 +37,7 @@ void Setup(void)
     sixDice.rollTime = 10.0f;
     sixDice.lastRoll = 0;
     sixDice.sides = 6;
+
 }
 
 void Run(void)
@@ -104,33 +99,6 @@ void UpdateGame(void)
     }
 }
 
-void UpdateMenu(void)
-{
-    EnableCursor();
-    Rectangle play = {
-        .height = 30.f,
-        .width = 90.f,
-        .x = 740.f,
-        .y = 900.f / 2.f
-    };
-
-    Rectangle exit = {
-        .height = 30.f,
-        .width = 90.f,
-        .x = 740.f,
-        .y = 900.f / 1.8f
-    };
-
-    
-    if (GuiButton(play, GuiIconText(RICON_DEMON, "Play")))
-    {
-        gamestate = game;
-        DisableCursor();
-    }
-    if (GuiButton(exit, GuiIconText(RICON_UNDO, "Exit")))
-        run = false;
-}
-
 
 void DrawGame(void)
 {
@@ -167,13 +135,3 @@ void DrawGame(void)
     EndDrawing();
 }
 
-void DrawMenu(void)
-{
-    BeginDrawing();
-
-    ClearBackground(RAYWHITE);
-
-
-    DrawText("Diece", 650, 200, 100, RED);
-    EndDrawing();
-}
