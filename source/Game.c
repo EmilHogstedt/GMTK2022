@@ -11,6 +11,8 @@
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
 
+#define MAX_MODELS 20
+
 #define RLIGHTS_IMPLEMENTATION
 #include "raylib/rlights.h"
 
@@ -20,9 +22,13 @@ DiceSystem sixDice = { 0 };
 
 Light* lights = NULL;
 
+Mesh meshes[MAX_MODELS] = { 0 };
+Model models[MAX_MODELS] = { 0 };
+
 //Forward declarations
 void UpdateGame(void);
 void DrawGame(void);
+void GenerateLevel(void);
 
 //Private functions
 void UpdateDT(void)
@@ -67,6 +73,8 @@ void Setup(void)
     {
         shotgunModel.materials[i].shader = shader;
     }
+    GenerateLevel();
+
 }
 
 void Run(void)
@@ -139,10 +147,11 @@ void DrawGame(void)
 
     DrawPlayer(&player);
 
-    DrawPlane((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector2) { 32.0f, 32.0f }, LIGHTGRAY); // Draw ground
-    DrawCube((Vector3) { -16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, BLUE);     // Draw a blue wall
-    DrawCube((Vector3) { 16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, LIME);      // Draw a green wall
-    DrawCube((Vector3) { 0.0f, 2.5f, 16.0f }, 32.0f, 5.0f, 1.0f, GOLD);      // Draw a yellow wall
+    DrawModel(models[0], (Vector3){0.0f, 0.0f, 0.0f}, 1.f, DARKGRAY);
+    //DrawPlane((Vector3) { 0.0f, 0.0f, 0.0f }, (Vector2) { 32.0f, 32.0f }, LIGHTGRAY); // Draw ground
+    // DrawCube((Vector3) { -16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, BLUE);     // Draw a blue wall
+    // DrawCube((Vector3) { 16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, LIME);      // Draw a green wall
+    // DrawCube((Vector3) { 0.0f, 2.5f, 16.0f }, 32.0f, 5.0f, 1.0f, GOLD);      // Draw a yellow wall
 
     EndMode3D();
 
@@ -164,3 +173,8 @@ void DrawGame(void)
     EndDrawing();
 }
 
+void GenerateLevel(void)
+{
+    meshes[0] = GenMeshCylinder(20.f, 1.f, 10);
+    models[0] = LoadModelFromMesh(meshes[0]);
+}

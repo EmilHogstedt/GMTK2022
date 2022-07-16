@@ -1,5 +1,5 @@
 *.pdb
-*.obj
+build/*.obj
 *.ilk
 *.exe
 .vscode
