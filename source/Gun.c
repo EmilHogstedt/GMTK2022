@@ -6,6 +6,8 @@
 
 #include "stb_ds.h"
 
+#include "time.h"
+
 #define PistolAmmo 10
 #define SMGAmmo 30
 #define ShotgunAmmo 5
@@ -27,6 +29,9 @@ Model smgModel = { 0 };
 Model shotgunModel = { 0 };
 Model shotModel = { 0 };
 
+Sound pistolShotSounds[6];
+Sound smgShotSounds[6];
+Sound shotgunShotSounds[6];
 //Private functions
 
 void UpdateShots(Gun* gun, Vector3 playerPos, Enemy* enemies)
@@ -44,6 +49,34 @@ void UpdateShots(Gun* gun, Vector3 playerPos, Enemy* enemies)
 
 		}
 		*/
+	}
+}
+
+void RandomizeShotSound(void)
+{
+	srand(time(NULL));
+	unsigned shotIndex = rand() % 6;
+	switch (player.gun.currentGun)
+	{
+	case Pistol:
+	{
+		PlaySound(pistolShotSounds[shotIndex]);
+		break;
+	}
+	case SMG:
+	{
+		PlaySound(pistolShotSounds[shotIndex]);
+		break;
+	}
+	case Shotgun:
+	{
+		PlaySound(shotgunShotSounds[shotIndex]);
+		break;
+	}
+	default:
+	{
+		break;
+	}
 	}
 }
 
@@ -65,6 +98,29 @@ void SetupGun(Gun* gun)
 	smgModel = LoadModel("resources/Models/SMG/Uzi.obj");
 	shotgunModel = LoadModel("resources/Models/Shotgun/Rifle.obj");
 	shotModel = LoadModelFromMesh(GenMeshSphere(0.035f, 10, 10));
+
+	//Setup sounds
+	pistolShotSounds[0] = LoadSound("resources/Sounds/Pistol/shot1.wav");
+	pistolShotSounds[1] = LoadSound("resources/Sounds/Pistol/shot2.wav");
+	pistolShotSounds[2] = LoadSound("resources/Sounds/Pistol/shot3.wav");
+	pistolShotSounds[3] = LoadSound("resources/Sounds/Pistol/shot4.wav");
+	pistolShotSounds[4] = LoadSound("resources/Sounds/Pistol/shot5.wav");
+	pistolShotSounds[5] = LoadSound("resources/Sounds/Pistol/shot6.wav");
+
+	smgShotSounds[0] = LoadSound("resources/Sounds/SMG/shot1.wav");
+	smgShotSounds[1] = LoadSound("resources/Sounds/SMG/shot2.wav");
+	smgShotSounds[2] = LoadSound("resources/Sounds/SMG/shot3.wav");
+	smgShotSounds[3] = LoadSound("resources/Sounds/SMG/shot4.wav");
+	smgShotSounds[4] = LoadSound("resources/Sounds/SMG/shot5.wav");
+	smgShotSounds[5] = LoadSound("resources/Sounds/SMG/shot6.wav");
+
+	
+	shotgunShotSounds[0] = LoadSound("resources/Sounds/Shotgun/shot1.wav");
+	shotgunShotSounds[1] = LoadSound("resources/Sounds/Shotgun/shot2.wav");
+	shotgunShotSounds[2] = LoadSound("resources/Sounds/Shotgun/shot3.wav");
+	shotgunShotSounds[3] = LoadSound("resources/Sounds/Shotgun/shot4.wav");
+	shotgunShotSounds[4] = LoadSound("resources/Sounds/Shotgun/shot5.wav");
+	shotgunShotSounds[5] = LoadSound("resources/Sounds/Shotgun/shot6.wav");
 }
 
 void ChangeGun(Gun* gun, GunType type)
@@ -283,6 +339,7 @@ void Shoot(Gun* gun, Camera playerCamera)
 		gun->shootTimer = gun->shootCD;
 		if (gun->currentGun == Shotgun)
 		{
+			srand(time(NULL));
 			unsigned newShots = rand() % 6 + 4;
 			for (unsigned i = 0; i < newShots; i++)
 			{
@@ -290,8 +347,8 @@ void Shoot(Gun* gun, Camera playerCamera)
 				info.shotPos = gun->pos;
 
 				Vector3 newTarget = (Vector3){ playerCamera.target.x + ((rand() % 1000) / 2000.0f) - 0.25f, playerCamera.target.y + ((rand() % 1000) / 2000.0f) - 0.25f, playerCamera.target.z + ((rand() % 1000) / 2000.0f) - 0.25f};
-				newTarget = Vector3Subtract(newTarget, Vector3Scale(up, 0.15f));
-				newTarget = Vector3Add(newTarget, Vector3Scale(right, 0.15f));
+				newTarget = Vector3Subtract(newTarget, Vector3Scale(up, 1.3f));
+				newTarget = Vector3Add(newTarget, Vector3Scale(right, 0.40f));
 				Vector3 newDir = Vector3Normalize(Vector3Subtract(newTarget, playerCamera.position));
 				info.shotVel = Vector3Scale(newDir, gun->power);
 				float gravity = -2.0f;
@@ -319,6 +376,7 @@ void Shoot(Gun* gun, Camera playerCamera)
 			arrpush(gun->shotsInfo, info);
 		}
 		gun->currentAmmo -= 1;
+		RandomizeShotSound();
 	}
 }
 

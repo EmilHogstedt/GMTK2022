@@ -17,14 +17,23 @@ Rectangle bexit = {
         .y = 900.f / 1.8f
     };
 
+Music menuMusic = { 0 };
+
 void UpdateMenu(void)
 {
+    if (!IsMusicStreamPlaying(menuMusic))
+    {
+        menuMusic = LoadMusicStream("resources/SOunds/Music/Menu.wav");
+        PlayMusicStream(menuMusic);
+    }
+    UpdateMusicStream(menuMusic);
     EnableCursor();
     
     if (GuiButton(bplay, GuiIconText(RICON_DEMON, "Play")))
     {
         gamestate = game;
         DisableCursor();
+        StopMusicStream(menuMusic);
     }
     if (GuiButton(bexit, GuiIconText(RICON_UNDO, "Exit")))
         run = false;

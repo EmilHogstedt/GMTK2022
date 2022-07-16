@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "Menu.h"
 #include "Enemies.h"
+#include "time.h"
 
 #include "raylib/raymath.h"
 
@@ -46,10 +47,31 @@ void UpdateDT(void)
     fps = GetFPS();
 }
 
+void RandomizeGameSong(void)
+{
+    srand(time(NULL));
+    unsigned songIndex = rand() % 3;
+    if (songIndex == 1)
+    {
+        ingameMusic = LoadMusicStream("resources/Sounds/Music/Wrath.mp3");
+    }
+    else if (songIndex == 2)
+    {
+        ingameMusic = LoadMusicStream("resources/Sounds/Music/Valhalla.mp3");
+    }
+    else
+    {
+        ingameMusic = LoadMusicStream("resources/Sounds/Music/Armageddon.mp3");
+    }
+    PlayMusicStream(ingameMusic);
+    SetMusicVolume(ingameMusic, 0.7f);
+}
 //Definitions
 void Setup(void)
 {
     InitWindow(screenWidth, screenHeight, "GMTK2022");
+
+    InitAudioDevice();
     SetWindowState(FLAG_VSYNC_HINT);
 
     SetupPlayer();
@@ -83,8 +105,6 @@ void Setup(void)
     Enemy temp2 = CreateEnemy(Skull, (Vector3) { 40.0f, 20.0f, 1.0f }, player.camera.position, (Vector3){ 1.0f, 1.0f, 1.0f}, 10);
     arrpush(enemies, temp2);
 
-    ingameMusic = LoadMusicStream("resources/Sounds/Music/Wrath.mp3");
-    PlayMusicStream(ingameMusic);
 }
 
 void Run(void)
@@ -138,8 +158,10 @@ void UpdateGame(void)
 {
     if (!IsMusicStreamPlaying(ingameMusic))
     {
-        PlayMusicStream(ingameMusic);
+        RandomizeGameSong();
     }
+    UpdateMusicStream(ingameMusic);
+
     UpdatePlayer(enemies);
     if(IsKeyPressed(KEY_ESCAPE))
     {
