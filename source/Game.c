@@ -12,7 +12,7 @@
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
 
-#define MAX_MODELS 20
+
 
 #define RLIGHTS_IMPLEMENTATION
 #include "raylib/rlights.h"
@@ -27,6 +27,7 @@ Enemy* enemies = NULL;
 
 Mesh meshes[MAX_MODELS] = { 0 };
 Model models[MAX_MODELS] = { 0 };
+BoundingBox mapElementsHitBox[MAX_MODELS] = { 0 };
 
 //Forward declarations
 void UpdateGame(void);
@@ -163,6 +164,7 @@ void DrawGame(void)
         DrawEnemy(&enemies[i]);
     }
 
+    DrawBoundingBox(mapElementsHitBox[0], GREEN);  
     EndMode3D();
 
     char str[2];
@@ -209,6 +211,7 @@ void GenerateLevel(void)
 {
     meshes[0] = GenMeshCylinder(20.f, 1.f, 10);
     models[0] = LoadModelFromMesh(meshes[0]);
+    mapElementsHitBox[0] = GetModelBoundingBox(models[0]);
     for (unsigned i = 0; i < models[0].materialCount; i++)
     {
         models[0].materials[i].shader = shader;
