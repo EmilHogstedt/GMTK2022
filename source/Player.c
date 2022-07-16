@@ -20,9 +20,9 @@ void UpdatePlayer(Player* player)
 	UpdateGun(&player->gun, player->camera);
 	//Input handling
 	//If left mouse button is pressed, or if left mouse button is down and player is holding an SMG
-	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && player->gun.currentGun == SMG))
+	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
-		Shoot(&player->gun);
+		Shoot(&player->gun, player->camera);
 	}
 }
 

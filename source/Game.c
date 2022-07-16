@@ -56,8 +56,8 @@ void Setup(void)
     shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
 
     int ambientLoc = GetShaderLocation(shader, "ambient");
-    SetShaderValue(shader, ambientLoc, (float[4]) { 0.1f, 0.1f, 0.1f, 1.0f }, SHADER_UNIFORM_VEC4);
-    Light temp = CreateLight(LIGHT_POINT, (Vector3) { -2.0f, 1.0f, -2.0f }, Vector3Zero(), WHITE, shader);
+    SetShaderValue(shader, ambientLoc, (float[4]) { 0.3f, 0.3f, 0.3f, 1.0f }, SHADER_UNIFORM_VEC4);
+    Light temp = CreateLight(LIGHT_POINT, (Vector3) { -2.0f, 10.0f, -2.0f }, Vector3Zero(), WHITE, shader);
     arrpush(lights, temp);
 
     //Set the shader for all our objects.
@@ -72,6 +72,10 @@ void Setup(void)
     for (unsigned i = 0; i < shotgunModel.materialCount; i++)
     {
         shotgunModel.materials[i].shader = shader;
+    }
+    for (unsigned i = 0; i < shotModel.materialCount; i++)
+    {
+        shotModel.materials[i].shader = shader;
     }
     GenerateLevel();
 
@@ -177,4 +181,8 @@ void GenerateLevel(void)
 {
     meshes[0] = GenMeshCylinder(20.f, 1.f, 10);
     models[0] = LoadModelFromMesh(meshes[0]);
+    for (unsigned i = 0; i < models[0].materialCount; i++)
+    {
+        models[0].materials[i].shader = shader;
+    }
 }
