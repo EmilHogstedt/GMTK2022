@@ -179,6 +179,9 @@ void DrawGame(void)
     sprintf(str2, "%d / %d", player.gun.currentAmmo, player.gun.maxAmmo);
     DrawText(str2, 200, 200, 50, BLACK);
 
+    float lineLength = 20.0f;
+    DrawLineEx((Vector2) { screenWidth / 2.0f, screenHeight / 2.0f - lineLength / 2.0f }, (Vector2) { screenWidth / 2.0f, screenHeight / 2.0f + lineLength / 2.0f }, 3.0f, WHITE);
+    DrawLineEx((Vector2) { screenWidth / 2.0f - lineLength / 2.0f, screenHeight / 2.0f }, (Vector2) { screenWidth / 2.0f + lineLength / 2.0f, screenHeight / 2.0f }, 3.0f, WHITE);
     EndDrawing();
 }
 
