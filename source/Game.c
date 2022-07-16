@@ -141,8 +141,9 @@ void UpdateGame(void)
         PlayMusicStream(ingameMusic);
     }
     UpdatePlayer(enemies);
-    if (IsKeyPressed(KEY_ESCAPE))
+    if(IsKeyPressed(KEY_ESCAPE))
     {
+        EnableCursor();
         gamestate = menu;
         StopMusicStream(ingameMusic);
     }
@@ -152,7 +153,8 @@ void UpdateGame(void)
         sixDice.lastRoll = roll;
     }
 
-    for (unsigned i = 0; i < arrlen(enemies); i++)
+    unsigned len = arrlen(enemies);
+    for (unsigned i = 0; i < len; i++)
     {
         UpdateEnemy(&enemies[i]);
     }

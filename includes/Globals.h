@@ -57,10 +57,8 @@ extern unsigned fps;
 extern unsigned gamestate;
 extern bool run;
 
-<<<<<<< Updated upstream
 extern Player player;
-=======
+
 extern unsigned shots;
 
 extern BoundingBox mapElementsHitBox[MAX_MODELS];
->>>>>>> Stashed changes
