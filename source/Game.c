@@ -29,6 +29,8 @@ Mesh meshes[MAX_MODELS] = { 0 };
 Model models[MAX_MODELS] = { 0 };
 BoundingBox mapElementsHitBox[MAX_MODELS] = { 0 };
 
+Music ingameMusic = { 0 };
+
 //Forward declarations
 void UpdateGame(void);
 void DrawGame(void);
@@ -80,6 +82,9 @@ void Setup(void)
     //TEMP
     Enemy temp2 = CreateEnemy(Skull, (Vector3) { 40.0f, 20.0f, 1.0f }, player.camera.position, (Vector3){ 1.0f, 1.0f, 1.0f}, 10);
     arrpush(enemies, temp2);
+
+    ingameMusic = LoadMusicStream("resources/Sounds/Music/Wrath.mp3");
+    PlayMusicStream(ingameMusic);
 }
 
 void Run(void)
@@ -131,9 +136,16 @@ void Draw(void)
 
 void UpdateGame(void)
 {
+    if (!IsMusicStreamPlaying(ingameMusic))
+    {
+        PlayMusicStream(ingameMusic);
+    }
     UpdatePlayer(enemies);
-    if(IsKeyPressed(KEY_ESCAPE))
+    if (IsKeyPressed(KEY_ESCAPE))
+    {
         gamestate = menu;
+        StopMusicStream(ingameMusic);
+    }
     if (UpdateDiceSystem(&sixDice))
     {
         unsigned roll = RollDice(sixDice.sides);
