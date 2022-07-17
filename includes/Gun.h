@@ -2,6 +2,7 @@
 #include "Globals.h"
 #include "Enemies.h"
 
+void LoadModelsAndSounds(void);
 void SetupGun(Gun* gun);
 void ChangeGun(Gun* gun, GunType type);
 void UpdateGun(Gun* gun, Camera playerCamera, Enemy* enemies);

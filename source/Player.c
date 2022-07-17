@@ -8,6 +8,11 @@ BoundingBox hitbox = { 0 };
 Vector3 gravity = {0.0f, -9.82f, 0.0f};
 PhysicsBody pphys = { 0 };
 
+void LoadGunModels(void)
+{
+	LoadModelsAndSounds();
+}
+
 void SetupPlayer()
 {
 	player.camera.position = (Vector3){ 0.0f, 40.0f, 0.0f };

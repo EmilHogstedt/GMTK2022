@@ -121,21 +121,8 @@ void RandomizeCasingSound(void)
 }
 
 //Definitions
-
-void SetupGun(Gun* gun)
+void LoadModelsAndSounds(void)
 {
-	gun->currentGun = Pistol;
-	gun->maxAmmo = PistolAmmo;
-	gun->shootCD = PistolCooldown;
-	gun->power = PistolPower;
-	gun->reloadCD = PistolReload;
-
-	srand((unsigned)time(NULL));
-	gun->currentAmmo = rand() % gun->maxAmmo + 1;
-	gun->shootTimer = 0.0f;
-	gun->pos = (Vector3){ 0.0f, 5.0f, 0.0f };
-	gun->shotsInfo = NULL;
-
 	pistolModel = LoadModel("resources/Models/Pistol/gun.obj");
 	smgModel = LoadModel("resources/Models/SMG/Uzi.obj");
 	shotgunModel = LoadModel("resources/Models/Shotgun/Rifle.obj");
@@ -165,7 +152,7 @@ void SetupGun(Gun* gun)
 		shotgunShotSounds[4] = LoadSound("resources/Sounds/Shotgun/shot5.wav");
 		shotgunShotSounds[5] = LoadSound("resources/Sounds/Shotgun/shot6.wav");
 	}
-	
+
 	//Casings
 	{
 		pistolCasingSounds[0] = LoadSound("resources/Sounds/Pistol/casing1.wav");
@@ -189,11 +176,26 @@ void SetupGun(Gun* gun)
 		shotgunCasingSounds[4] = LoadSound("resources/Sounds/Shotgun/casing5.wav");
 		shotgunCasingSounds[5] = LoadSound("resources/Sounds/Shotgun/casing6.wav");
 	}
-	
+
 	//Reloads
 	reloadSounds[0] = LoadSound("resources/Sounds/Pistol/reload.wav");
 	reloadSounds[1] = LoadSound("resources/Sounds/SMG/reload.wav");
 	reloadSounds[2] = LoadSound("resources/Sounds/Shotgun/reload.wav");
+}
+
+void SetupGun(Gun* gun)
+{
+	gun->currentGun = Pistol;
+	gun->maxAmmo = PistolAmmo;
+	gun->shootCD = PistolCooldown;
+	gun->power = PistolPower;
+	gun->reloadCD = PistolReload;
+
+	srand((unsigned)time(NULL));
+	gun->currentAmmo = rand() % gun->maxAmmo + 1;
+	gun->shootTimer = 0.0f;
+	gun->pos = (Vector3){ 0.0f, 5.0f, 0.0f };
+	gun->shotsInfo = NULL;
 }
 
 void ChangeGun(Gun* gun, GunType type)

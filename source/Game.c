@@ -47,6 +47,22 @@ void SetupEnemyModels(void);
 void SetupDice(void);
 
 //Private functions
+
+void ResetGame(void)
+{
+    SetupPlayer();
+
+    SetupDice();
+
+    //TEMP
+    if (enemies != NULL)
+    {
+        arrfree(enemies);
+    }
+    Enemy temp2 = CreateEnemy(Skull, (Vector3) { 40.0f, 20.0f, 1.0f }, player.camera.position, (Vector3) { 1.0f, 1.0f, 1.0f }, 10);
+    arrpush(enemies, temp2);
+}
+
 void UpdateDT(void)
 {
     dt = GetFrameTime();
@@ -73,31 +89,31 @@ void RandomizeGameSong(void)
     PlayMusicStream(ingameMusic);
     SetMusicVolume(ingameMusic, MasterVolume * MusicVolume);
 }
+
 //Definitions
 void Setup(void)
 {
     InitWindow(screenWidth, screenHeight, "GMTK2022");
 
+    InitPhysics();
     InitAudioDevice();
     SetWindowState(FLAG_VSYNC_HINT);
 
-    SetupMenu();
+    LoadGunModels();
 
-    SetupPlayer();
-
-    InitPhysics();
-
-    SetCameraMode(player.camera, CAMERA_FIRST_PERSON);
-
-    SetupDice();
+    ResetGame();
 
     shader = LoadShader(TextFormat("shaders/base_lighting.vs", GLSL_VERSION), TextFormat("shaders/lighting.fs", GLSL_VERSION));
     shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
-
     int ambientLoc = GetShaderLocation(shader, "ambient");
     SetShaderValue(shader, ambientLoc, (float[4]) { 0.3f, 0.3f, 0.3f, 1.0f }, SHADER_UNIFORM_VEC4);
+
     Light temp = CreateLight(LIGHT_POINT, (Vector3) { -2.0f, 40.0f, -2.0f }, Vector3Zero(), WHITE, shader);
     arrpush(lights, temp);
+
+    SetupMenu();
+
+    SetCameraMode(player.camera, CAMERA_FIRST_PERSON);
 
     //Set the shader for all our objects.
     //Guns
@@ -108,11 +124,6 @@ void Setup(void)
 
     //Level
     GenerateLevel();
-
-
-    //TEMP
-    Enemy temp2 = CreateEnemy(Skull, (Vector3) { 40.0f, 20.0f, 1.0f }, player.camera.position, (Vector3){ 1.0f, 1.0f, 1.0f}, 10);
-    arrpush(enemies, temp2);
 
     //See if a highscore exists. If it does we load it.
     FILE* highscoreFile;
@@ -281,12 +292,12 @@ void DrawGame(void)
     }
     case SMG:
     {
-        DrawText("Current Weapon: SMG", screenWidth / 2 - screenWidth / 10, screenHeight - 30, 30, BLACK);
+        DrawText("Current Weapon: SMG", screenWidth / 2 - screenWidth / 8, screenHeight - 30, 30, BLACK);
         break;
     }
     case Shotgun:
     {
-        DrawText("Current Weapon: Shotgun", screenWidth / 2 - screenWidth / 10, screenHeight - 30, 30, BLACK);
+        DrawText("Current Weapon: Shotgun", screenWidth / 2 - screenWidth / 8, screenHeight - 30, 30, BLACK);
         break;
     }
     default:
@@ -568,6 +579,7 @@ void UpdateMenu(void)
     {
         if (GuiButton(bplay, GuiIconText(RICON_DEMON, "Play")))
         {
+            ResetGame();
             gamestate = game;
             DisableCursor();
             StopMusicStream(menuMusic);

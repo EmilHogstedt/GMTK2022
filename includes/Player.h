@@ -2,6 +2,7 @@
 #include "Gun.h"
 #include "Enemies.h"
 
-void SetupPlayer();
+void LoadGunModels(void);
+void SetupPlayer(void);
 void UpdatePlayer(Enemy* enemies);
-void DrawPlayer();
+void DrawPlayer(void);
