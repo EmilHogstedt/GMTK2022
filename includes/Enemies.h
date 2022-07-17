@@ -19,6 +19,9 @@ typedef struct Enemy
 	float timer;
 	float speed;
 	BoundingBox hitbox;
+
+	Vector3 lerpDir1;
+	Vector3 lerpDir2;
 } Enemy;
 
 void SetupEnemies(void);

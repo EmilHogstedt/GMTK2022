@@ -65,7 +65,7 @@ void ResetGame(void)
     {
         arrfree(enemies);
     }
-    Enemy temp2 = CreateEnemy(Skull, (Vector3) { 10.0f, 5.0f, 1.0f }, player.camera.position, (Vector3) { 1.0f, 1.0f, 1.0f }, 10);
+    Enemy temp2 = CreateEnemy(Skull, (Vector3) { 10.0f, 3.0f, 1.0f }, player.camera.position, (Vector3) { 0.5f, 0.5f, 0.5f }, 1.0f);
     arrpush(enemies, temp2);
 }
 
