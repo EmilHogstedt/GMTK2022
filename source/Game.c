@@ -4,12 +4,13 @@
 #include "Game.h"
 #include "DiceSystem.h"
 #include "Player.h"
-#include "Menu.h"
 #include "Enemies.h"
 #include "time.h"
 
-#include "raylib/raymath.h"
+#define RAYGUI_IMPLEMENTATION
+#include "raylib/raygui.h"
 
+#include "raylib/raymath.h"
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
 
@@ -17,6 +18,7 @@
 #include "raylib/rlights.h"
 
 #define PHYSAC_IMPLEMENTATION
+#define PHYSAC_NO_THREADS
 #include "raylib/physac.h"
 
 Player player = { 0 };
@@ -69,7 +71,7 @@ void RandomizeGameSong(void)
         ingameMusic = LoadMusicStream("resources/Sounds/Music/Armageddon.mp3");
     }
     PlayMusicStream(ingameMusic);
-    SetMusicVolume(ingameMusic, 0.7f);
+    SetMusicVolume(ingameMusic, MasterVolume * MusicVolume);
 }
 //Definitions
 void Setup(void)
@@ -78,6 +80,8 @@ void Setup(void)
 
     InitAudioDevice();
     SetWindowState(FLAG_VSYNC_HINT);
+
+    SetupMenu();
 
     SetupPlayer();
 
@@ -119,6 +123,25 @@ void Setup(void)
         HighScore = strtol(buf, NULL, 10);
         fclose(highscoreFile);
     }
+
+    //See if a volume file exists. If it does we load it.
+    FILE* volumeFile;
+    if (volumeFile = fopen("bin/volume.txt", "r"))
+    {
+        char masterBuf[10];
+        fgets(masterBuf, 100, volumeFile);
+        MasterVolume = (float)(strtol(masterBuf, NULL, 10)) / 100.0f;
+
+        char musicBuf[10];
+        fgets(musicBuf, 100, volumeFile);
+        MusicVolume = (float)(strtol(musicBuf, NULL, 10)) / 100.0f;
+
+        char soundeffectBuf[10];
+        fgets(soundeffectBuf, 100, volumeFile);
+        SoundEffectVolume = (float)(strtol(soundeffectBuf, NULL, 10)) / 100.0f;
+
+        fclose(volumeFile);
+    }
 }
 
 void Run(void)
@@ -142,9 +165,6 @@ void Update(void)
     case game:
         UpdateGame();
         break;
-    case highscore:
-        return;
-        break;
     default:
         break;
     }
@@ -160,9 +180,6 @@ void Draw(void)
     case game:
         DrawGame();
         break;
-    case highscore:
-        return;
-        break;
     default:
         break;
     }
@@ -170,55 +187,60 @@ void Draw(void)
 
 void UpdateGame(void)
 {
-    if (!IsMusicStreamPlaying(ingameMusic))
+    if (innerGamestate == none)
     {
-        RandomizeGameSong();
-    }
-    UpdateMusicStream(ingameMusic);
-
-    currentScoreTimer += dt;
-    if (currentScoreTimer > 1.0f)
-    {
-        currentScoreTimer = 0.0f;
-        CurrentScore += 1;
-    }
-
-    UpdatePlayer(enemies);
-    if(IsKeyPressed(KEY_ESCAPE))
-    {
-        EnableCursor();
-        gamestate = menu;
-        StopMusicStream(ingameMusic);
-
-        if (CurrentScore > HighScore)
+        if (!IsMusicStreamPlaying(ingameMusic))
         {
-            HighScore = CurrentScore;
+            RandomizeGameSong();
+        }
+        UpdateMusicStream(ingameMusic);
 
-            FILE* highscoreFile;
-            highscoreFile = fopen("bin/highscore.txt", "w");
-            char buf[100];
-            sprintf(buf, "%d", HighScore);
-            fputs(buf, highscoreFile);
-            fclose(highscoreFile);
+        currentScoreTimer += dt;
+        if (currentScoreTimer > 1.0f)
+        {
+            currentScoreTimer = 0.0f;
+            CurrentScore += 1;
+        }
+
+        UpdatePlayer(enemies);
+        if (IsKeyPressed(KEY_ESCAPE))
+        {
+            EnableCursor();
+            innerGamestate = pause;
+            PauseMusicStream(ingameMusic);
+        }
+        if (UpdateDiceSystem(&sixDice))
+        {
+            unsigned roll = RollDice(sixDice.sides);
+            sixDice.lastRoll = roll;
+        }
+        if (UpdateDiceSystem(&weaponCoin))
+        {
+            unsigned roll = RollDice(weaponCoin.sides);
+            weaponCoin.lastRoll = roll;
+            ChangeGun(&player.gun, (player.gun.currentGun + roll) % 3);
+        }
+
+        unsigned len = arrlen(enemies);
+        for (unsigned i = 0; i < len; i++)
+        {
+            UpdateEnemy(&enemies[i]);
         }
     }
-    if (UpdateDiceSystem(&sixDice))
+    else if (innerGamestate == pause)
     {
-        unsigned roll = RollDice(sixDice.sides);
-        sixDice.lastRoll = roll;
+        if (IsKeyPressed(KEY_ESCAPE))
+        {
+            DisableCursor();
+            ResumeMusicStream(ingameMusic);
+            innerGamestate = none;
+        }
     }
-    if (UpdateDiceSystem(&weaponCoin))
+    else if (innerGamestate == settings)
     {
-        unsigned roll = RollDice(weaponCoin.sides);
-        weaponCoin.lastRoll = roll;
-        ChangeGun(&player.gun, (player.gun.currentGun + roll) % 3);
+        return;
     }
-
-    unsigned len = arrlen(enemies);
-    for (unsigned i = 0; i < len; i++)
-    {
-        UpdateEnemy(&enemies[i]);
-    }
+    
 }
 
 
@@ -281,13 +303,89 @@ void DrawGame(void)
     float lineLength = 20.0f;
     DrawLineEx((Vector2) { screenWidth / 2.0f, screenHeight / 2.0f - lineLength / 2.0f }, (Vector2) { screenWidth / 2.0f, screenHeight / 2.0f + lineLength / 2.0f }, 3.0f, WHITE);
     DrawLineEx((Vector2) { screenWidth / 2.0f - lineLength / 2.0f, screenHeight / 2.0f }, (Vector2) { screenWidth / 2.0f + lineLength / 2.0f, screenHeight / 2.0f }, 3.0f, WHITE);
-    EndDrawing();
+    
 
     //Current points.
     DrawText("CURRENT POINTS", screenWidth / 2, screenHeight / 6, 60, ORANGE);
     char scoreBuf[100];
     sprintf(scoreBuf, "%d", CurrentScore);
     DrawText(scoreBuf, screenWidth / 2, screenHeight / 4, 50, BLUE);
+
+    if (innerGamestate == pause)
+    {
+        DrawSettings();
+        DrawRectangle(screenWidth / 2 - 60, screenHeight / 2 - 90, 120, 190, RAYWHITE);
+
+        if (GuiButton(bpauseContinue, GuiIconText(RICON_DEMON, "Continue")))
+        {
+            DisableCursor();
+            ResumeMusicStream(ingameMusic);
+            innerGamestate = none;
+        }
+        if (GuiButton(bpauseSettings, GuiIconText(RICON_DEMON, "Settings")))
+        {
+            innerGamestate = settings;
+        }
+        if (GuiButton(bpauseQuit, GuiIconText(RICON_DEMON, "Quit")))
+        {
+            if (CurrentScore > HighScore)
+            {
+                HighScore = CurrentScore;
+
+                FILE* highscoreFile;
+                highscoreFile = fopen("bin/highscore.txt", "w");
+                char buf[100];
+                sprintf(buf, "%d", HighScore);
+                fputs(buf, highscoreFile);
+                fclose(highscoreFile);
+            }
+            innerGamestate = none;
+            gamestate = menu;
+        }
+    }
+    else if (innerGamestate == settings)
+    {
+        DrawSettings();
+        DrawRectangle(screenWidth / 2.0f - 210, screenHeight / 2 - 10, 420, 310, RAYWHITE);
+
+        char masterStr[5];
+        sprintf(masterStr, "%d", (int)(MasterVolume * 100.0f));
+        MasterVolume = GuiSlider(bmaster, "Master Volume", masterStr, MasterVolume, 0.0f, 1.0f);
+
+        char musicStr[5];
+        sprintf(musicStr, "%d", (int)(MusicVolume * 100.0f));
+        MusicVolume = GuiSlider(bmusic, "Music Volume", musicStr, MusicVolume, 0.0f, 1.0f);
+
+        char soundeffectStr[5];
+        sprintf(soundeffectStr, "%d", (int)(SoundEffectVolume * 100.0f));
+        SoundEffectVolume = GuiSlider(bsoundeffect, "Sound Effect Volume", soundeffectStr, SoundEffectVolume, 0.0f, 1.0f);
+
+        if (GuiButton(bpauseReturn, GuiIconText(RICON_DOOR, "Return")))
+        {
+            //Write the current volume to the volume file
+            FILE* volumeFile;
+            volumeFile = fopen("bin/volume.txt", "w");
+
+            char masterBuf[100];
+            sprintf(masterBuf, "%d\n", (int)(MasterVolume * 100.0f));
+            fputs(masterBuf, volumeFile);
+
+            char musicBuf[100];
+            sprintf(musicBuf, "%d\n", (int)(MusicVolume * 100.0f));
+            fputs(musicBuf, volumeFile);
+
+            char soundeffectBuf[100];
+            sprintf(soundeffectBuf, "%d\n", (int)(SoundEffectVolume * 100.0f));
+            fputs(soundeffectBuf, volumeFile);
+
+            fclose(volumeFile);
+
+            innerGamestate = pause;
+
+            SetMusicVolume(ingameMusic, MasterVolume * MusicVolume);
+        }
+    }
+    EndDrawing();
 }
 
 void SetupPlayerAndGuns(void)
@@ -341,4 +439,262 @@ void GenerateLevel(void)
     {
         models[0].materials[i].shader = shader;
     }
+}
+
+
+
+Rectangle bplay = { 0 };
+
+Rectangle bsettings = { 0 };
+
+Rectangle bcredits = { 0 };
+
+Rectangle bexit = { 0 };
+
+Rectangle breturn = { 0 };
+
+Rectangle bmaster = { 0 };
+Rectangle bmusic = { 0 };
+Rectangle bsoundeffect = { 0 };
+
+Rectangle bpauseContinue = { 0 };
+Rectangle bpauseSettings = { 0 };
+Rectangle bpauseQuit = { 0 };
+
+Rectangle bpauseReturn = { 0 };
+
+Music menuMusic = { 0 };
+
+void SetupMenu(void)
+{
+    bplay = (Rectangle){
+    .height = 30.f,
+    .width = 90.f,
+    .x = screenWidth / 2.0f - 45.0f,
+    .y = screenHeight / 2.0f
+    };
+
+    bsettings = (Rectangle){
+        .height = 30.f,
+        .width = 90.f,
+        .x = screenWidth / 2.0f - 45.0f,
+        .y = screenHeight / 2.0f + 80
+    };
+
+    bcredits = (Rectangle){
+        .height = 30.f,
+        .width = 90.f,
+        .x = screenWidth / 2.0f - 45.0f,
+        .y = screenHeight / 2.0f + 160
+    };
+
+    bexit = (Rectangle){
+        .height = 30.f,
+        .width = 90.f,
+        .x = screenWidth / 2.0f - 45.0f,
+        .y = screenHeight / 2.0f + 240
+    };
+
+    breturn = (Rectangle){
+        .height = 50.f,
+        .width = 90.f,
+        .x = screenWidth / 2.0f - 45.0f,
+        .y = screenHeight - 80
+    };
+
+    bmaster = (Rectangle){
+        .height = 50.f,
+        .width = 180.f,
+        .x = screenWidth / 2.0f - 90,
+        .y = screenHeight / 2.0f
+    };
+
+    bmusic = (Rectangle){
+        .height = 50.f,
+        .width = 180.f,
+        .x = screenWidth / 2.0f - 90.0f,
+        .y = screenHeight / 2.0f + 80
+    };
+
+    bsoundeffect = (Rectangle){
+        .height = 50.f,
+        .width = 180.f,
+        .x = screenWidth / 2.0f - 90.0f,
+        .y = screenHeight / 2.0f + 160
+    };
+
+    //For pause screen.
+    bpauseContinue = (Rectangle){
+        .height = 50.f,
+        .width = 90.f,
+        .x = screenWidth / 2.0f - 45.0f,
+        .y = screenHeight / 2.0f - 80
+    };
+
+    bpauseSettings = (Rectangle){
+        .height = 50.f,
+        .width = 90.f,
+        .x = screenWidth / 2.0f - 45.0f,
+        .y = screenHeight / 2.0f - 20
+    };
+
+    bpauseQuit = (Rectangle){
+        .height = 50.f,
+        .width = 90.f,
+        .x = screenWidth / 2.0f - 45.0f,
+        .y = screenHeight / 2.0f + 40
+    };
+
+    bpauseReturn = (Rectangle){
+        .height = 50.f,
+        .width = 90.f,
+        .x = screenWidth / 2.0f - 45.0f,
+        .y = screenHeight / 2.0f + 240
+    };
+}
+
+void UpdateMenu(void)
+{
+    if (!IsMusicStreamPlaying(menuMusic))
+    {
+        menuMusic = LoadMusicStream("resources/Sounds/Music/Menu.wav");
+        PlayMusicStream(menuMusic);
+        SetMusicVolume(menuMusic, MasterVolume * MusicVolume);
+    }
+    UpdateMusicStream(menuMusic);
+    EnableCursor();
+
+    if (innerGamestate == none)
+    {
+        if (GuiButton(bplay, GuiIconText(RICON_DEMON, "Play")))
+        {
+            gamestate = game;
+            DisableCursor();
+            StopMusicStream(menuMusic);
+        }
+        if (GuiButton(bsettings, GuiIconText(RICON_FILETYPE_AUDIO, "Settings")))
+        {
+            innerGamestate = settings;
+        }
+        if (GuiButton(bcredits, GuiIconText(RICON_INFO, "Credits")))
+        {
+            innerGamestate = credits;
+        }
+        if (GuiButton(bexit, GuiIconText(RICON_UNDO, "Exit")))
+        {
+            //Write the current volume to the volume file
+            FILE* volumeFile;
+            volumeFile = fopen("bin/volume.txt", "w");
+
+            char masterBuf[100];
+            sprintf(masterBuf, "%d\n", (int)(MasterVolume * 100.0f));
+            fputs(masterBuf, volumeFile);
+
+            char musicBuf[100];
+            sprintf(musicBuf, "%d\n", (int)(MusicVolume * 100.0f));
+            fputs(musicBuf, volumeFile);
+
+            char soundeffectBuf[100];
+            sprintf(soundeffectBuf, "%d\n", (int)(SoundEffectVolume * 100.0f));
+            fputs(soundeffectBuf, volumeFile);
+
+            fclose(volumeFile);
+
+            run = false;
+        }
+    }
+    else if (innerGamestate == settings)
+    {
+        char masterStr[5];
+        sprintf(masterStr, "%d", (int)(MasterVolume * 100.0f));
+        MasterVolume = GuiSlider(bmaster, "Master Volume", masterStr, MasterVolume, 0.0f, 1.0f);
+
+        char musicStr[5];
+        sprintf(musicStr, "%d", (int)(MusicVolume * 100.0f));
+        MusicVolume = GuiSlider(bmusic, "Music Volume", musicStr, MusicVolume, 0.0f, 1.0f);
+
+        char soundeffectStr[5];
+        sprintf(soundeffectStr, "%d", (int)(SoundEffectVolume * 100.0f));
+        SoundEffectVolume = GuiSlider(bsoundeffect, "Sound Effect Volume", soundeffectStr, SoundEffectVolume, 0.0f, 1.0f);
+
+        if (GuiButton(breturn, GuiIconText(RICON_DOOR, "Return")))
+        {
+            //Write the current volume to the volume file
+            FILE* volumeFile;
+            volumeFile = fopen("bin/volume.txt", "w");
+
+            char masterBuf[100];
+            sprintf(masterBuf, "%d\n", (int)(MasterVolume * 100.0f));
+            fputs(masterBuf, volumeFile);
+
+            char musicBuf[100];
+            sprintf(musicBuf, "%d\n", (int)(MusicVolume * 100.0f));
+            fputs(musicBuf, volumeFile);
+
+            char soundeffectBuf[100];
+            sprintf(soundeffectBuf, "%d\n", (int)(SoundEffectVolume * 100.0f));
+            fputs(soundeffectBuf, volumeFile);
+
+            fclose(volumeFile);
+
+            innerGamestate = none;
+        }
+
+        //Update music volume while changing settings.
+        SetMusicVolume(menuMusic, MasterVolume * MusicVolume);
+    }
+    else if (innerGamestate == credits)
+    {
+        if (GuiButton(breturn, GuiIconText(RICON_DOOR, "Return")))
+        {
+            innerGamestate = none;
+        }
+    }
+}
+
+
+void DrawMenu(void)
+{
+    BeginDrawing();
+    ClearBackground(RAYWHITE);
+    if (innerGamestate == none || innerGamestate == settings)
+    {
+        if (HighScore > 0)
+        {
+            char scoreBuf[100];
+            sprintf(scoreBuf, "HighScore: %d", HighScore);
+            DrawText(scoreBuf, screenWidth / 2 - 180, screenHeight / 4, 50, BLUE);
+        }
+        DrawText("Diece", screenWidth / 2 - 130, screenHeight / 8, 100, RED);
+
+        if (innerGamestate == settings)
+        {
+            DrawSettings();
+        }
+    }
+    else if (innerGamestate == credits)
+    {
+        DrawCredits();
+    }
+
+    EndDrawing();
+}
+
+void DrawSettings(void)
+{
+    DrawRectangle(0, 0, screenWidth, screenHeight, (Color) { .r = 150, .g = 150, .b = 150, .a = 100 });
+}
+
+void DrawCredits(void)
+{
+    DrawText("A game made by:", (int)(screenWidth / 2.0f - 250), (int)(screenHeight / 8.0f), 60, BLACK);
+    DrawText("Emil Hogstedt & Oscar Milstein", (int)(screenWidth / 2.0f - 450), (int)(screenHeight / 8.0f + 70), 60, BLACK);
+    DrawText("Music: Armageddon, Valhalla & Wrath by Alexander Nakarada (www.serpentsoundstudios.com)", (int)(screenWidth / 2.0f - 700), (int)(screenHeight / 2.5f), 30, BLACK);
+    DrawText("Licensed under Creative Commons BY Attribution 4.0 License", (int)(screenWidth / 2.0f - 450), (int)(screenHeight / 2.5f + 40), 30, BLACK);
+    DrawText("https://creativecommons.org/licenses/by/4.0/", (int)(screenWidth / 2.0f - 350), (int)(screenHeight / 2.5f + 80), 30, BLACK);
+
+    DrawText("The rest of the music & all the sound effects have royalty free/creative commons licenses", (int)(screenWidth / 2.0f - 730), (int)(screenHeight / 1.5f), 30, BLACK);
+    DrawText("or have been bought by the developers.", (int)(screenWidth / 2.0f - 320), (int)(screenHeight / 1.5f + 35), 30, BLACK);
+
+    DrawText("Special shoutout to the demon under my bed", (int)(screenWidth / 2.0f - 170), (int)(screenHeight / 1.2f), 15, BLACK);
 }

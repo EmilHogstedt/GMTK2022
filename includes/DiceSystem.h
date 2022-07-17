@@ -1,6 +1,4 @@
 #pragma once
-#include "Globals.h"
-
 typedef struct DiceSystem
 {
 	float timer;

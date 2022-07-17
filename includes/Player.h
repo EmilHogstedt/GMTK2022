@@ -1,5 +1,4 @@
 #pragma once
-#include "Globals.h"
 #include "Gun.h"
 #include "Enemies.h"
 

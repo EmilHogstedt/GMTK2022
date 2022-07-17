@@ -60,23 +60,26 @@ void UpdateShots(Gun* gun, Vector3 playerPos, Enemy* enemies)
 
 void RandomizeShotSound(void)
 {
-	srand(time(NULL));
+	srand((unsigned)time(NULL));
 	unsigned shotIndex = rand() % 6;
 	switch (player.gun.currentGun)
 	{
 	case Pistol:
 	{
 		PlaySound(pistolShotSounds[shotIndex]);
+		SetSoundVolume(pistolShotSounds[shotIndex], MasterVolume * SoundEffectVolume);
 		break;
 	}
 	case SMG:
 	{
 		PlaySound(smgShotSounds[shotIndex]);
+		SetSoundVolume(smgShotSounds[shotIndex], MasterVolume * SoundEffectVolume);
 		break;
 	}
 	case Shotgun:
 	{
 		PlaySound(shotgunShotSounds[shotIndex]);
+		SetSoundVolume(shotgunShotSounds[shotIndex], MasterVolume * SoundEffectVolume);
 		break;
 	}
 	default:
@@ -88,23 +91,26 @@ void RandomizeShotSound(void)
 
 void RandomizeCasingSound(void)
 {
-	srand(time(NULL));
+	srand((unsigned)time(NULL));
 	unsigned casingIndex = rand() % 6;
 	switch (player.gun.currentGun)
 	{
 	case Pistol:
 	{
 		PlaySound(pistolCasingSounds[casingIndex]);
+		SetSoundVolume(pistolCasingSounds[casingIndex], MasterVolume * SoundEffectVolume);
 		break;
 	}
 	case SMG:
 	{
 		PlaySound(smgCasingSounds[casingIndex]);
+		SetSoundVolume(smgCasingSounds[casingIndex], MasterVolume * SoundEffectVolume);
 		break;
 	}
 	case Shotgun:
 	{
 		PlaySound(shotgunCasingSounds[casingIndex]);
+		SetSoundVolume(shotgunCasingSounds[casingIndex], MasterVolume * SoundEffectVolume);
 		break;
 	}
 	default:
@@ -124,7 +130,7 @@ void SetupGun(Gun* gun)
 	gun->power = PistolPower;
 	gun->reloadCD = PistolReload;
 
-	srand(time(NULL));
+	srand((unsigned)time(NULL));
 	gun->currentAmmo = rand() % gun->maxAmmo + 1;
 	gun->shootTimer = 0.0f;
 	gun->pos = (Vector3){ 0.0f, 5.0f, 0.0f };
@@ -225,13 +231,14 @@ void ChangeGun(Gun* gun, GunType type)
 	}
 
 	gun->currentGun = type;
-	srand(time(NULL));
+	srand((unsigned)time(NULL));
 	gun->currentAmmo = rand() % gun->maxAmmo + 1;
 	gun->shootTimer = 0.0f;
 	gun->reloading = true;
 	gun->reloadTimer = gun->reloadCD;
 
 	PlaySound(reloadSounds[gun->currentGun]);
+	SetSoundVolume(reloadSounds[gun->currentGun], MasterVolume * SoundEffectVolume);
 }
 
 void UpdateGun(Gun* gun, Camera playerCamera, Enemy* enemies)
@@ -398,9 +405,10 @@ void Shoot(Gun* gun, Camera playerCamera)
 		{
 			gun->reloading = true;
 			gun->reloadTimer = gun->reloadCD;
-			srand(time(NULL));
+			srand((unsigned)time(NULL));
 			gun->currentAmmo = rand() % gun->maxAmmo + 1;
 			PlaySound(reloadSounds[gun->currentGun]);
+			SetSoundVolume(reloadSounds[gun->currentGun], MasterVolume * SoundEffectVolume);
 			return;
 		}
 		Vector3 playerForward = Vector3Normalize(Vector3Subtract(playerCamera.target, playerCamera.position));
@@ -412,7 +420,7 @@ void Shoot(Gun* gun, Camera playerCamera)
 		gun->shootTimer = gun->shootCD;
 		if (gun->currentGun == Shotgun)
 		{
-			srand(time(NULL));
+			srand((unsigned)time(NULL));
 			unsigned newShots = rand() % 6 + 4;
 			for (unsigned i = 0; i < newShots; i++)
 			{
@@ -459,18 +467,17 @@ void DrawGun(Gun* gun)
 	{
 	case Pistol:
 	{
-		//DrawModelEx(pistolModel, gun->pos, (Vector3) { 0.0f, 1.0f, 0.0f }, gun->rot, (Vector3) { 0.01f, 0.01f, 0.01f }, RED);
-		DrawModel(pistolModel, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, BLANK);
+		DrawModel(pistolModel, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, GRAY);
 		break;
 	}
 	case SMG:
 	{
-		DrawModel(smgModel, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, BLANK);
+		DrawModel(smgModel, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, GRAY);
 		break;
 	}
 	case Shotgun:
 	{
-		DrawModel(shotgunModel, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, BLANK);
+		DrawModel(shotgunModel, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, GRAY);
 		break;
 	}
 	default:

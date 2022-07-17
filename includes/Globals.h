@@ -1,7 +1,7 @@
 #pragma once
 #include <stdbool.h>
-#include "raylib/raylib.h"
 
+#include "raylib/raylib.h"
 #define GLSL_VERSION 330
 
 #define MAX_COLUMNS 20
@@ -9,9 +9,12 @@
 
 typedef enum gamestates
 {
+   none = 0,
    menu,
    game,
-   highscore
+   pause,
+   settings,
+   credits
 }gamestates;
 
 typedef struct ShotInfo
@@ -47,14 +50,16 @@ typedef struct Player
 	Gun gun;
 } Player;
 
-extern const int screenWidth;
-extern const int screenHeight;
+extern int screenWidth;
+extern int screenHeight;
 
 extern float dt;
 extern double totalTime;
 extern unsigned fps;
 
 extern unsigned gamestate;
+extern unsigned innerGamestate;
+
 extern bool run;
 
 extern Player player;
@@ -65,3 +70,7 @@ extern BoundingBox mapElementsHitBox[MAX_MODELS];
 
 extern unsigned CurrentScore;
 extern unsigned HighScore;
+
+extern float MasterVolume;
+extern float MusicVolume;
+extern float SoundEffectVolume;

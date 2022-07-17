@@ -1,3 +1,4 @@
+#include "Globals.h"
 #include "Player.h"
 #include "raylib/raymath.h"
 
@@ -25,7 +26,7 @@ void SetupPlayer()
 void UpdatePlayer(Enemy* enemies)
 {
 	UpdateCamera(&player.camera);
-	Matrix temp = GetCameraMatrix(player.camera);
+	//Matrix temp = GetCameraMatrix(player.camera);
 	//player->camera.target = (Vector3){ temp.m8, temp.m9, temp.m10 };
 
 	UpdateGun(&player.gun, player.camera, enemies);
