@@ -2,11 +2,11 @@
 #include "Player.h"
 #include "raylib/raymath.h"
 
-#include "raylib/physac.h"
+#define CAMERA_IMPLEMENTATION
+#include "raylib/rcamera.h"
 
 BoundingBox hitbox = { 0 };
 Vector3 gravity = {0.0f, -9.82f, 0.0f};
-PhysicsBody pphys = { 0 };
 
 void LoadGunModels(void)
 {
@@ -15,17 +15,19 @@ void LoadGunModels(void)
 
 void SetupPlayer()
 {
-	player.camera.position = (Vector3){ 0.0f, 40.0f, 0.0f };
+	player.camera.position = (Vector3){ 0.0f, 10.0f, 0.0f };
 	player.camera.target = (Vector3){ 0.0f, 0.0f, 1.0f };
 	player.camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
 	player.camera.fovy = 90.0f;
 	player.camera.projection = CAMERA_PERSPECTIVE;
 
-	SetupGun(&player.gun);
+	hitbox.min = (Vector3){ -0.5f, -4.0f, -0.5f };
+	hitbox.max = (Vector3){ 0.5f, 1.0f, 0.5f };
+	Matrix ppos = MatrixTranslate(player.camera.position.x, player.camera.position.y, player.camera.position.z);
+	hitbox.min = Vector3Transform(hitbox.min, ppos);
+	hitbox.max = Vector3Transform(hitbox.max, ppos);
 
-	//Setup hitbox
-	hitbox.min = (Vector3){-1.0f, -2.0f, -1.0f};
-	hitbox.max = (Vector3){1.0f, 2.0f, 1.0f};
+	SetupGun(&player.gun);
 }
 
 void UpdatePlayer(Enemy* enemies)
@@ -54,27 +56,22 @@ void UpdatePlayer(Enemy* enemies)
 		ChangeGun(&player.gun, Shotgun);
 	}
 
+	Vector3 oldPos = player.camera.position;
 	player.camera.position = Vector3Add(player.camera.position, Vector3Scale(gravity, dt));
 	//Matrix temp = GetCameraMatrix(player->camera);
 	//player->camera.target = (Vector3){ temp.m8, temp.m9, temp.m10 };
 
 	//Physics
-
-
-	//Collissions
-	if(CheckCollisionBoxes(hitbox, mapElementsHitBox[0]))
-		player.camera.position.y = 4.0f;
-
 	//Update hitbox position.
-	hitbox.min = (Vector3){-0.5f, -1.0f, -0.5f};
-	hitbox.max = (Vector3){0.5f, 0.5f, 0.5f};
+	hitbox.min = (Vector3){ -0.5f, -4.0f, -0.5f };
+	hitbox.max = (Vector3){ 0.5f, 1.0f, 0.5f };
 	Matrix ppos = MatrixTranslate(player.camera.position.x, player.camera.position.y, player.camera.position.z);
 	hitbox.min = Vector3Transform(hitbox.min, ppos);
 	hitbox.max = Vector3Transform(hitbox.max, ppos);
 
-
-	// hitbox.min = Vector3Add(hitbox.min, player->camera.position);
-	// hitbox.max = Vector3Add(hitbox.max, player->camera.position);
+	//Collissions
+	if (CheckCollisionBoxes(hitbox, mapElementsHitBox[0]))
+		player.camera.position.y = mapElementsHitBox[0].max.y + 4.0f + 0.01f;
 
 	
 

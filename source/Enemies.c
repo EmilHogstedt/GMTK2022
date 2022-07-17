@@ -20,7 +20,7 @@ void UpdateEnemy(Enemy* enemy)
 			enemy->timer = 0.0f;
 			enemy->goal = player.camera.position;
 		}
-
+		/*
 		//Update the orientational vectors and the position.
 		Vector3 dirToGoal = Vector3Normalize(Vector3Subtract(enemy->goal, enemy->pos));
 		Vector3 dirToGoalRight = Vector3Normalize(Vector3CrossProduct(dirToGoal, (Vector3) { 0.0f, 1.0f, 0.0f }));
@@ -35,6 +35,13 @@ void UpdateEnemy(Enemy* enemy)
 		enemy->right = Vector3Normalize(Vector3Add(enemy->right, Vector3Scale(diffUp, dt)));
 
 		enemy->pos = Vector3Add(enemy->pos, Vector3Scale(enemy->forward, enemy->speed * dt));
+		*/
+		//Update hitbox position.
+		enemy->hitbox.min = (Vector3){-1.8f, -1.8f, -1.8f};
+		enemy->hitbox.max = (Vector3){ 1.8f, 1.8f, 1.8f };
+		Matrix ppos = MatrixTranslate(enemy->pos.x, enemy->pos.y, enemy->pos.z);
+		enemy->hitbox.min = Vector3Transform(enemy->hitbox.min, ppos);
+		enemy->hitbox.max = Vector3Transform(enemy->hitbox.max, ppos);
 		break;
 	}
 	default:
@@ -53,7 +60,11 @@ void DrawEnemy(Enemy* enemy)
 		skullModel.transform = MatrixIdentity();
 		Matrix s = MatrixScale(enemy->scale.x, enemy->scale.y, enemy->scale.z);
 		Matrix r = MatrixLookAt(enemy->pos, enemy->forward, enemy->up);
-		Matrix t = MatrixTranslate(enemy->pos.x, enemy->pos.y, enemy->pos.z);
+		Matrix r2 = MatrixRotate((Vector3){0.0f, 1.0f, 0.0f}, PI / 4.0f);
+		//Matrix r3 = MatrixRotate(Vector3Normalize(Vector3Add((Vector3) { 0.0f, 1.0f, 0.0f }, enemy->pos)), 0);
+		//Matrix r3 = MatrixRotate(Vector3Add((Vector3) { 0.0f, 1.0f, 0.0f }, enemy->pos), PI / 6.0f);
+		r = MatrixMultiply(r, r2);
+		Matrix t = MatrixTranslate(enemy->pos.x, enemy->pos.y, enemy->pos.z + 8);
 
 		skullModel.transform = MatrixMultiply(MatrixMultiply(s, r), t);
 		DrawModel(skullModel, Vector3Zero(), 1.0f, WHITE);
@@ -64,6 +75,8 @@ void DrawEnemy(Enemy* enemy)
 		break;
 	}
 	}
+
+	DrawBoundingBox(enemy->hitbox, GREEN);
 }
 
 Enemy CreateEnemy(EnemyType type, Vector3 startPos, Vector3 startGoal, Vector3 startScale, float enemySpeed)
@@ -86,6 +99,12 @@ Enemy CreateEnemy(EnemyType type, Vector3 startPos, Vector3 startGoal, Vector3 s
 	case Skull:
 	{
 		e.health = 2;
+
+		e.hitbox.min = (Vector3){ -1.8f, -1.8f, -1.8f };
+		e.hitbox.max = (Vector3){ 1.8f, 1.8f, 1.8f };
+		Matrix ppos = MatrixTranslate(e.pos.x, e.pos.y, e.pos.z);
+		e.hitbox.min = Vector3Transform(e.hitbox.min, ppos);
+		e.hitbox.max = Vector3Transform(e.hitbox.max, ppos);
 		break;
 	}
 	default:
@@ -93,6 +112,5 @@ Enemy CreateEnemy(EnemyType type, Vector3 startPos, Vector3 startGoal, Vector3 s
 		break;
 	}
 	}
-
 	return e;
 }

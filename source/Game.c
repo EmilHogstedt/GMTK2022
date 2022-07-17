@@ -19,7 +19,6 @@
 
 #define PHYSAC_IMPLEMENTATION
 #define PHYSAC_NO_THREADS
-#include "raylib/physac.h"
 
 Player player = { 0 };
 Shader shader = { 0 };
@@ -66,7 +65,7 @@ void ResetGame(void)
     {
         arrfree(enemies);
     }
-    Enemy temp2 = CreateEnemy(Skull, (Vector3) { 40.0f, 20.0f, 1.0f }, player.camera.position, (Vector3) { 1.0f, 1.0f, 1.0f }, 10);
+    Enemy temp2 = CreateEnemy(Skull, (Vector3) { 10.0f, 5.0f, 1.0f }, player.camera.position, (Vector3) { 1.0f, 1.0f, 1.0f }, 10);
     arrpush(enemies, temp2);
 }
 
@@ -102,7 +101,6 @@ void Setup(void)
 {
     InitWindow(screenWidth, screenHeight, "GMTK2022");
 
-    InitPhysics();
     InitAudioDevice();
     SetWindowState(FLAG_VSYNC_HINT);
 

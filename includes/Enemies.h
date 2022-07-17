@@ -18,6 +18,7 @@ typedef struct Enemy
 	Vector3 goal; //Position the enemy is moving towards.
 	float timer;
 	float speed;
+	BoundingBox hitbox;
 } Enemy;
 
 void SetupEnemies(void);
