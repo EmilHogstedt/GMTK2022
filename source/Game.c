@@ -38,6 +38,13 @@ Music ingameMusic = { 0 };
 
 float currentScoreTimer = 0.0f;
 
+//Textures
+Texture2D AmmoUITex = { 0 };
+Texture2D CurrentEffectUITex = { 0 };
+Texture2D CurrentEnemyUITex = { 0 };
+Texture2D ScoreUITex = { 0 };
+Texture2D WeaponUITex = { 0 };
+
 //Forward declarations
 void UpdateGame(void);
 void DrawGame(void);
@@ -153,6 +160,14 @@ void Setup(void)
 
         fclose(volumeFile);
     }
+
+    //Load textures.
+    
+    AmmoUITex = LoadTexture("resources/Textures/Ammo.png");
+    CurrentEffectUITex = LoadTexture("resources/Textures/CurrentEffect.png");
+    CurrentEnemyUITex = LoadTexture("resources/Textures/CurrentEnemy.png");
+    ScoreUITex = LoadTexture("resources/Textures/ScoreAndTimers.png");
+    WeaponUITex = LoadTexture("resources/Textures/WeaponTimer.png");
 }
 
 void Run(void)
@@ -275,29 +290,48 @@ void DrawGame(void)
     DrawBoundingBox(mapElementsHitBox[0], GREEN);  
     EndMode3D();
 
-    char str[2];
-    sprintf(str, "%d", sixDice.lastRoll);
-    DrawText(str, 300, 50, 30, BLACK);
+    //DRAW THE UI TEXTURES!.
+    DrawTexture(AmmoUITex, 0, screenHeight - AmmoUITex.height, WHITE);
+    DrawTexture(CurrentEffectUITex, 0, 0, WHITE);
+    DrawTexture(CurrentEnemyUITex, screenWidth - CurrentEnemyUITex.width, 0, WHITE);
+    DrawTexture(ScoreUITex, screenWidth / 2 - ScoreUITex.width / 2, 0, WHITE);
+    DrawTexture(WeaponUITex, screenWidth / 2 - WeaponUITex.width / 2, screenHeight - WeaponUITex.height, WHITE);
 
+    //Effect timer
+    char str[2];
+    sprintf(str, "%.0f", sixDice.rollTime - sixDice.timer);
+    DrawText(str, screenWidth / 2 - 310, 10, 50, WHITE);
+
+    //Effect Icon
+    //Needs to be added
+
+    //Enemy timer
+    //Needs to be added
+
+    //Current enemy icon
+    //Needs to be added.
+
+    //Ammo
     char ammoStr[10];
     sprintf(ammoStr, "%d / %d", player.gun.currentAmmo, player.gun.maxAmmo);
-    DrawText(ammoStr, 200, 200, 50, BLACK);
+    DrawText(ammoStr, 30, screenHeight - 70, 50, WHITE);
 
+    //Current gun
     switch (player.gun.currentGun)
     {
     case Pistol:
     {
-        DrawText("Current Weapon: Pistol", screenWidth / 2 - screenWidth / 8, screenHeight - 30, 30, BLACK);
+        DrawText("Current Weapon: Pistol", screenWidth / 2 - 185, screenHeight - 40, 30, WHITE);
         break;
     }
     case SMG:
     {
-        DrawText("Current Weapon: SMG", screenWidth / 2 - screenWidth / 8, screenHeight - 30, 30, BLACK);
+        DrawText("Current Weapon: SMG", screenWidth / 2 - 185, screenHeight - 40, 30, WHITE);
         break;
     }
     case Shotgun:
     {
-        DrawText("Current Weapon: Shotgun", screenWidth / 2 - screenWidth / 8, screenHeight - 30, 30, BLACK);
+        DrawText("Current Weapon: Shotgun", screenWidth / 2 - 185, screenHeight - 40, 30, WHITE);
         break;
     }
     default:
@@ -306,21 +340,23 @@ void DrawGame(void)
     }
     }
 
+    //Time until weapon switch
     char weaponSwitchStr[10];
-    sprintf(weaponSwitchStr, "%.2f", weaponCoin.rollTime - weaponCoin.timer);
-    DrawText(weaponSwitchStr, screenWidth / 2 - screenWidth / 20, screenHeight - 90, 50, BLACK);
+    sprintf(weaponSwitchStr, "%.1f", weaponCoin.rollTime - weaponCoin.timer);
+    DrawText(weaponSwitchStr, screenWidth / 2 - 40, screenHeight - 90, 50, WHITE);
 
     //Crosshair
     float lineLength = 20.0f;
-    DrawLineEx((Vector2) { screenWidth / 2.0f, screenHeight / 2.0f - lineLength / 2.0f }, (Vector2) { screenWidth / 2.0f, screenHeight / 2.0f + lineLength / 2.0f }, 3.0f, WHITE);
-    DrawLineEx((Vector2) { screenWidth / 2.0f - lineLength / 2.0f, screenHeight / 2.0f }, (Vector2) { screenWidth / 2.0f + lineLength / 2.0f, screenHeight / 2.0f }, 3.0f, WHITE);
+    DrawLineEx((Vector2) { screenWidth / 2.0f, screenHeight / 2.0f - lineLength / 2.0f }, (Vector2) { screenWidth / 2.0f, screenHeight / 2.0f + lineLength / 2.0f }, 3.0f, BLACK);
+    DrawLineEx((Vector2) { screenWidth / 2.0f - lineLength / 2.0f, screenHeight / 2.0f }, (Vector2) { screenWidth / 2.0f + lineLength / 2.0f, screenHeight / 2.0f }, 3.0f, BLACK);
     
 
     //Current points.
-    DrawText("CURRENT POINTS", screenWidth / 2, screenHeight / 6, 60, ORANGE);
+    DrawText("SCORE", screenWidth / 2 - 80, 5, 50, WHITE);
     char scoreBuf[100];
     sprintf(scoreBuf, "%d", CurrentScore);
-    DrawText(scoreBuf, screenWidth / 2, screenHeight / 4, 50, BLUE);
+    DrawText(scoreBuf, screenWidth / 2 - 10, 60, 40, BLUE);
+
 
     if (innerGamestate == pause)
     {
